@@ -1,227 +1,152 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Bidanara — aplikasi kesehatan wanita all-in-one: kalkulator kehamilan, masa subur, BMI, & skrining kesehatan. Hasil instan, akurat, berbahasa Indonesia.">
-<meta name="theme-color" content="#e7689a">
-<title>Bidanara — Sahabat Kesehatan Wanita</title>
-<link rel="stylesheet" href="assets/css/styles.css">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tadabbur — Menyelami Keajaiban Al-Qur'an</title>
+  <meta name="description" content="Satu ayat, sejuta makna. Pelajari Al-Qur'an lewat asbabun nuzul, tafsir, hikmah, keajaiban linguistik, dan amalan keseharian. Langganan bulanan." />
+  <meta name="theme-color" content="#0f6b4f" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
 </head>
 <body>
-
-<header class="topbar">
-  <div class="brand">
-    <div class="logo">🌸</div>
-    <div>Bidanara<small>Kesehatan Wanita</small></div>
-  </div>
-  <button class="badge-pro" id="proBadge" onclick="App.openUpgrade()">✦ Upgrade Premium</button>
-</header>
-
-<section class="hero">
-  <h1>Pantau <span>kesehatan wanita</span> Anda dengan hasil instan</h1>
-  <p>Kalkulator kehamilan, masa subur, hingga skrining kesehatan reproduksi — dirancang oleh tenaga medis, langsung di genggaman Anda.</p>
-</section>
-
-<nav class="tabs" id="tabs">
-  <button class="tab active" data-tab="kehamilan">🤰 Kehamilan & Janin</button>
-  <button class="tab" data-tab="kesuburan">🌙 Siklus & Kesuburan</button>
-  <button class="tab" data-tab="skrining">🩺 Skrining Kesehatan</button>
-  <button class="tab" data-tab="riwayat">📋 Riwayat Saya</button>
-</nav>
-
-<main class="wrap">
-
-  <!-- ============ KEHAMILAN ============ -->
-  <section class="panel active" id="panel-kehamilan">
-    <div class="grid">
-
-      <div class="card">
-        <h3><span class="ic">📅</span> Kalkulator Kehamilan</h3>
-        <p class="sub">Hitung usia kehamilan & Hari Perkiraan Lahir (HPL) dari HPHT.</p>
-        <label class="f">Hari Pertama Haid Terakhir (HPHT)</label>
-        <input type="date" id="k-hpht">
-        <label class="f">Rata-rata panjang siklus haid (hari)</label>
-        <input type="number" id="k-siklus" value="28" min="21" max="40">
-        <button class="btn" onclick="App.runKehamilan()">Hitung Sekarang</button>
-        <div class="result" id="res-kehamilan"></div>
-      </div>
-
-      <div class="card">
-        <h3><span class="ic">⚖️</span> Estimasi Berat Janin</h3>
-        <p class="sub">Rumus Johnson dari Tinggi Fundus Uteri (TFU) — bedah praktis.</p>
-        <label class="f">Tinggi Fundus Uteri / TFU (cm)</label>
-        <input type="number" id="k-tfu" placeholder="contoh: 30" min="15" max="45">
-        <label class="check"><input type="checkbox" id="k-pap"> Kepala janin sudah masuk panggul (PAP)</label>
-        <button class="btn" onclick="App.runTBJ()">Estimasi Berat</button>
-        <div class="result" id="res-tbj"></div>
-      </div>
-
+  <!-- Header -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">۞</span>
+      <span>Tadabbur<small>Keajaiban Al-Qur'an</small></span>
     </div>
+    <button class="badge-pro" id="proBadge" onclick="App.openUpgrade()">✦ Premium</button>
+  </header>
+
+  <!-- Hero / Sales -->
+  <section class="hero">
+    <span class="kicker">Satu Ayat, Sejuta Makna</span>
+    <h1>Rasakan <span class="hl">keajaiban</span> Al-Qur'an di setiap kata</h1>
+    <p>Setiap ayat dibedah dalam 6 lapisan: asbabun nuzul, tafsir, hikmah, keajaiban
+       linguistik (kenapa Allah memilih kata itu), hingga amalan nyata sehari-hari.</p>
+    <div class="hero-cta">
+      <button class="btn" onclick="App.switchTab('hari-ini')">Baca Ayat Hari Ini</button>
+      <button class="btn gold" onclick="App.openUpgrade()">✦ Buka Semua (Premium)</button>
+    </div>
+    <div class="streak-pill" id="streakPill">🔥 Memuat kebiasaan…</div>
   </section>
 
-  <!-- ============ KESUBURAN ============ -->
-  <section class="panel" id="panel-kesuburan">
-    <div class="grid">
-      <div class="card">
-        <h3><span class="ic">🌙</span> Kalkulator Masa Subur</h3>
-        <p class="sub">Prediksi ovulasi & jendela subur untuk merencanakan / menunda kehamilan.</p>
-        <label class="f">Tanggal hari pertama haid terakhir</label>
-        <input type="date" id="s-haid">
-        <label class="f">Rata-rata panjang siklus (hari)</label>
-        <input type="number" id="s-siklus" value="28" min="21" max="40">
-        <button class="btn" onclick="App.runKesuburan()">Hitung Masa Subur</button>
-        <div class="result" id="res-kesuburan"></div>
-      </div>
+  <!-- Tabs -->
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="hari-ini">☀️ Hari Ini</button>
+    <button class="tab" data-tab="jelajah">📖 Jelajah</button>
+    <button class="tab" data-tab="tersimpan">🔖 Tersimpan</button>
+    <button class="tab" data-tab="paket">✦ Premium</button>
+  </nav>
 
-      <div class="card locked" data-premium>
-        <h3><span class="ic">📈</span> Prediksi 6 Bulan ke Depan</h3>
-        <p class="sub">Kalender kesuburan & perkiraan haid 6 siklus berikutnya.</p>
-        <label class="f">Tanggal haid terakhir</label>
-        <input type="date" id="s6-haid">
-        <label class="f">Panjang siklus (hari)</label>
-        <input type="number" id="s6-siklus" value="28" min="21" max="40">
-        <button class="btn" onclick="App.runKesuburan6()">Buat Kalender</button>
-        <div class="result" id="res-kesuburan6"></div>
-      </div>
-    </div>
-  </section>
+  <main class="wrap">
+    <!-- Ayat Hari Ini -->
+    <section class="panel active" id="panel-hari-ini">
+      <div id="hariIniBox"></div>
+    </section>
 
-  <!-- ============ SKRINING ============ -->
-  <section class="panel" id="panel-skrining">
-    <div class="grid">
+    <!-- Jelajah -->
+    <section class="panel" id="panel-jelajah">
+      <h2 class="section-title">Perpustakaan Ayat</h2>
+      <p class="section-sub">Pilih ayat untuk menyelami maknanya secara mendalam.</p>
+      <div id="daftarAyat"></div>
+    </section>
 
-      <div class="card">
-        <h3><span class="ic">⚖️</span> Indeks Massa Tubuh (IMT)</h3>
-        <p class="sub">Cut-off Asia-Pasifik untuk wanita dewasa.</p>
-        <div class="row2">
-          <div><label class="f">Berat (kg)</label><input type="number" id="b-berat" placeholder="55"></div>
-          <div><label class="f">Tinggi (cm)</label><input type="number" id="b-tinggi" placeholder="160"></div>
+    <!-- Tersimpan -->
+    <section class="panel" id="panel-tersimpan">
+      <h2 class="section-title">Ayat Tersimpan</h2>
+      <p class="section-sub">Koleksi ayat yang kamu tandai untuk dibaca ulang.</p>
+      <div id="daftarTersimpan"></div>
+    </section>
+
+    <!-- Paket / Pricing -->
+    <section class="panel" id="panel-paket">
+      <h2 class="section-title">Berlangganan Tadabbur</h2>
+      <p class="section-sub">Buka seluruh lapisan makna & perpustakaan ayat yang terus bertambah.</p>
+      <div class="price-grid">
+        <div class="price-card">
+          <div class="pc-name">Bulanan</div>
+          <div class="pc-amt">Rp 39.000<small>/bln</small></div>
+          <ul>
+            <li>Semua lapisan tadabbur</li>
+            <li>Perpustakaan ayat penuh</li>
+            <li>Batal kapan saja</li>
+          </ul>
+          <button class="btn ghost" style="width:100%" onclick="App.beli('Bulanan')">Pilih Bulanan</button>
         </div>
-        <button class="btn" onclick="App.runBMI()">Hitung IMT</button>
-        <div class="result" id="res-bmi"></div>
+        <div class="price-card hl">
+          <div class="pc-name">Tahunan · Terpopuler</div>
+          <div class="pc-amt">Rp 299.000<small>/thn</small></div>
+          <ul>
+            <li>Hemat ~36% (≈Rp 24.900/bln)</li>
+            <li>Semua fitur Premium</li>
+            <li>Ayat baru tiap pekan</li>
+          </ul>
+          <button class="btn gold" style="width:100%" onclick="App.beli('Tahunan')">Pilih Tahunan</button>
+        </div>
+        <div class="price-card">
+          <div class="pc-name">Seumur Hidup</div>
+          <div class="pc-amt">Rp 749.000<small>/sekali</small></div>
+          <ul>
+            <li>Bayar sekali, akses selamanya</li>
+            <li>Semua pembaruan konten</li>
+            <li>Pendukung awal 💚</li>
+          </ul>
+          <button class="btn ghost" style="width:100%" onclick="App.beli('Seumur Hidup')">Pilih Seumur Hidup</button>
+        </div>
       </div>
+    </section>
+  </main>
 
-      <div class="card">
-        <h3><span class="ic">🩸</span> Skrining Anemia Kehamilan</h3>
-        <p class="sub">Berdasarkan kadar Hemoglobin (cut-off WHO).</p>
-        <label class="f">Kadar Hb (g/dL)</label>
-        <input type="number" id="a-hb" step="0.1" placeholder="11.5">
-        <label class="f">Trimester saat ini</label>
-        <select id="a-tri"><option value="1">Trimester 1</option><option value="2">Trimester 2</option><option value="3">Trimester 3</option></select>
-        <button class="btn" onclick="App.runAnemia()">Periksa</button>
-        <div class="result" id="res-anemia"></div>
-      </div>
+  <!-- Modal Upgrade -->
+  <div class="modal" id="modalUpgrade">
+    <div class="modal-box">
+      <h3>✦ Buka Akses Premium</h3>
+      <p class="sub">Selami seluruh keajaiban di balik setiap ayat.</p>
 
-      <div class="card">
-        <h3><span class="ic">🌺</span> Skrining PCOS</h3>
-        <p class="sub">Kriteria Rotterdam (≥2 dari 3 terpenuhi).</p>
-        <label class="check"><input type="checkbox" id="p-siklus"> Siklus haid tidak teratur / jarang (oligo-anovulasi)</label>
-        <label class="check"><input type="checkbox" id="p-androgen"> Tanda kelebihan androgen (jerawat parah, bulu berlebih, rambut rontok)</label>
-        <label class="check"><input type="checkbox" id="p-usg"> Hasil USG menunjukkan ovarium polikistik</label>
-        <button class="btn" onclick="App.runPCOS()">Cek Kriteria</button>
-        <div class="result" id="res-pcos"></div>
-      </div>
-
-      <div class="card locked" data-premium>
-        <h3><span class="ic">🎗️</span> Skrining Risiko Kanker Reproduksi</h3>
-        <p class="sub">Kesadaran faktor risiko kanker serviks & payudara.</p>
-        <label class="f">Usia (tahun)</label>
-        <input type="number" id="c-usia" placeholder="32">
-        <label class="check"><input type="checkbox" id="c-dini"> Aktif seksual sejak usia < 18 tahun</label>
-        <label class="check"><input type="checkbox" id="c-partner"> Lebih dari satu pasangan seksual</label>
-        <label class="check"><input type="checkbox" id="c-rokok"> Merokok / terpapar asap rokok</label>
-        <label class="check"><input type="checkbox" id="c-keluarga"> Riwayat kanker pada keluarga</label>
-        <label class="check"><input type="checkbox" id="c-pap"> Belum pernah Pap smear / IVA</label>
-        <label class="check"><input type="checkbox" id="c-sadari"> Tidak rutin melakukan SADARI</label>
-        <button class="btn" onclick="App.runKanker()">Hitung Skor Risiko</button>
-        <div class="result" id="res-kanker"></div>
-      </div>
-
-      <div class="card locked" data-premium>
-        <h3><span class="ic">🫀</span> Risiko Preeklampsia</h3>
-        <p class="sub">Adaptasi faktor risiko pedoman NICE.</p>
-        <p style="font-size:.8rem;font-weight:700;color:var(--bad);margin-top:6px">Faktor risiko TINGGI</p>
-        <label class="check"><input type="checkbox" data-pe-h> Hipertensi pada kehamilan sebelumnya</label>
-        <label class="check"><input type="checkbox" data-pe-h> Penyakit ginjal kronik</label>
-        <label class="check"><input type="checkbox" data-pe-h> Penyakit autoimun (lupus/APS)</label>
-        <label class="check"><input type="checkbox" data-pe-h> Diabetes tipe 1 atau 2</label>
-        <label class="check"><input type="checkbox" data-pe-h> Hipertensi kronik</label>
-        <p style="font-size:.8rem;font-weight:700;color:var(--warn);margin-top:10px">Faktor risiko SEDANG</p>
-        <label class="check"><input type="checkbox" data-pe-m> Kehamilan pertama</label>
-        <label class="check"><input type="checkbox" data-pe-m> Usia ≥ 40 tahun</label>
-        <label class="check"><input type="checkbox" data-pe-m> Jarak kehamilan > 10 tahun</label>
-        <label class="check"><input type="checkbox" data-pe-m> IMT ≥ 35 di awal kehamilan</label>
-        <label class="check"><input type="checkbox" data-pe-m> Riwayat preeklampsia di keluarga</label>
-        <label class="check"><input type="checkbox" data-pe-m> Kehamilan kembar</label>
-        <button class="btn" onclick="App.runPreeklampsia()">Nilai Risiko</button>
-        <div class="result" id="res-pe"></div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ============ RIWAYAT ============ -->
-  <section class="panel" id="panel-riwayat">
-    <div class="card locked" data-premium style="max-width:640px;margin:0 auto">
-      <h3><span class="ic">📋</span> Riwayat & Laporan Saya</h3>
-      <p class="sub">Semua hasil perhitungan tersimpan otomatis di perangkat Anda (fitur Premium).</p>
-      <div id="riwayat-list"></div>
-      <button class="btn ghost" onclick="App.exportRiwayat()" style="margin-top:14px">⬇️ Ekspor Laporan (.txt)</button>
-      <button class="btn ghost" onclick="App.clearRiwayat()" style="margin-top:8px;color:var(--bad);border-color:var(--bad)">🗑️ Hapus Semua Riwayat</button>
-    </div>
-  </section>
-
-</main>
-
-<p class="disclaimer">⚠️ <b>Penting:</b> Bidanara adalah alat bantu edukasi & pemantauan mandiri. Hasil bersifat perkiraan dan <b>tidak menggantikan</b> diagnosis, pemeriksaan, atau nasihat tenaga medis. Selalu konsultasikan kondisi Anda dengan dokter atau bidan.</p>
-
-<footer>
-  © 2026 <b>Bidanara</b> · Sahabat Kesehatan Wanita · Dibuat dengan ❤️ untuk perempuan Indonesia<br>
-  <a href="#" onclick="App.openUpgrade();return false">Lihat Paket Premium</a>
-</footer>
-
-<!-- ===== Modal Upgrade ===== -->
-<div class="modal-bg" id="modalUpgrade">
-  <div class="modal">
-    <h2>✦ Bidanara Premium</h2>
-    <p style="color:var(--muted);margin-top:6px">Buka semua fitur lanjutan & simpan riwayat kesehatan Anda.</p>
-    <div class="price-list">
       <div class="plan" onclick="App.beli('Bulanan')">
-        <div class="pn"><span>Bulanan</span><span>Rp 29.000</span></div>
-        <div class="pd">Akses penuh, dibayar tiap bulan. Batal kapan saja.</div>
+        <div><div class="p-name">Bulanan</div><div class="p-note">Batal kapan saja</div></div>
+        <div class="p-price">Rp 39rb</div>
       </div>
       <div class="plan best" onclick="App.beli('Tahunan')">
-        <div class="pn"><span>Tahunan <span class="tag-best">HEMAT 45%</span></span><span>Rp 189.000</span></div>
-        <div class="pd">Hanya ~Rp 15.750/bulan. Pilihan paling populer.</div>
+        <div><div class="p-name">Tahunan <span class="p-badge">HEMAT 36%</span></div><div class="p-note">≈ Rp 24.900/bln</div></div>
+        <div class="p-price">Rp 299rb</div>
       </div>
       <div class="plan" onclick="App.beli('Seumur Hidup')">
-        <div class="pn"><span>Seumur Hidup</span><span>Rp 499.000</span></div>
-        <div class="pd">Bayar sekali, akses selamanya + update gratis.</div>
+        <div><div class="p-name">Seumur Hidup</div><div class="p-note">Bayar sekali, akses selamanya</div></div>
+        <div class="p-price">Rp 749rb</div>
       </div>
+
+      <details class="manual">
+        <summary>Sudah bayar? Aktivasi dengan Order ID</summary>
+        <div class="field">
+          <select id="m-paket">
+            <option value="Bulanan">Bulanan</option>
+            <option value="Tahunan">Tahunan</option>
+            <option value="Seumur Hidup">Seumur Hidup</option>
+          </select>
+          <input id="m-order" placeholder="Order ID dari Scalev" />
+        </div>
+        <button class="btn" style="width:100%;margin-top:10px" onclick="App.aktivasiManual()">Aktifkan</button>
+      </details>
+
+      <button class="btn ghost" style="width:100%;margin-top:14px" onclick="App.closeUpgrade()">Nanti dulu</button>
     </div>
-    <p style="font-size:.75rem;color:var(--muted)">Pembayaran aman via <b>Scalev</b>. Fitur Premium: kalender kesuburan 6 bulan, skrining kanker & preeklampsia, riwayat tersimpan, ekspor laporan, tanpa batas.</p>
-
-    <details style="margin-top:14px;text-align:left">
-      <summary style="cursor:pointer;font-size:.82rem;color:var(--pink);font-weight:700">Sudah bayar? Aktivasi dengan Order ID</summary>
-      <label class="f">Paket yang dibeli</label>
-      <select id="m-paket"><option>Bulanan</option><option>Tahunan</option><option>Seumur Hidup</option></select>
-      <label class="f">Order ID dari Scalev</label>
-      <input type="text" id="m-order" placeholder="contoh: SCL-123456" style="width:100%;padding:11px 12px;border:1px solid #e6d8e3;border-radius:11px;font-family:var(--font)">
-      <button class="btn" onclick="App.aktivasiManual()" style="margin-top:10px">Aktifkan Premium</button>
-    </details>
-
-    <button class="btn ghost" onclick="App.closeUpgrade()" style="margin-top:14px">Tutup</button>
   </div>
-</div>
 
-<div class="toast" id="toast"></div>
+  <footer>
+    <div>© 2026 Tadabbur · Dibuat untuk mendekatkan hati pada Al-Qur'an 💚</div>
+    <div class="note">Rujukan: Tafsir Ibnu Katsir, As-Sa'di, Al-Qurthubi, riwayat hadis sahih.
+      Konten edukatif; untuk pendalaman, rujuk ulama & guru terpercaya.</div>
+  </footer>
 
-<script src="assets/js/calculators.js"></script>
-<script src="assets/js/storage.js"></script>
-<script src="assets/js/payment.js"></script>
-<script src="assets/js/app.js"></script>
+  <div class="toast" id="toast"></div>
+
+  <script src="assets/js/content.js"></script>
+  <script src="assets/js/storage.js"></script>
+  <script src="assets/js/payment.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>App.init();</script>
 </body>
 </html>

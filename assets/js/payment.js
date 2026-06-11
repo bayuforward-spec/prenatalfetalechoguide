@@ -9,8 +9,7 @@
  *    (ganti {PAKET} = bulanan|tahunan|seumur-hidup). Scalev akan mengganti
  *    {ORDER_ID} dengan nomor order asli sebagai bukti pembayaran.
  *
- * Saat pembeli kembali ke aplikasi membawa parameter ?aktivasi=...&order=...,
- * Premium otomatis aktif. Pembeli juga bisa memasukkan Order ID manual.
+ * Saat pembeli kembali membawa ?aktivasi=...&order=..., Premium otomatis aktif.
  */
 const Payment = {
   CONFIG: {
@@ -20,7 +19,6 @@ const Payment = {
       'Tahunan':       'https://scalev.id/CHECKOUT-TAHUNAN',
       'Seumur Hidup':  'https://scalev.id/CHECKOUT-SEUMUR-HIDUP',
     },
-    // Pemetaan slug paket (dipakai di parameter redirect) -> nama paket
     slug: {
       'bulanan': 'Bulanan',
       'tahunan': 'Tahunan',
@@ -28,13 +26,11 @@ const Payment = {
     },
   },
 
-  // True bila URL checkout sudah dikonfigurasi (bukan placeholder)
   terkonfigurasi(paket) {
     const url = this.CONFIG.checkout[paket] || '';
     return url && !/CHECKOUT-/.test(url);
   },
 
-  // Buka halaman checkout Scalev untuk paket tertentu
   checkout(paket) {
     const url = this.CONFIG.checkout[paket];
     if (this.terkonfigurasi(paket)) {
@@ -44,8 +40,6 @@ const Payment = {
     return false; // belum dikonfigurasi -> pemanggil tangani fallback
   },
 
-  // Periksa parameter URL setelah pembeli diarahkan balik dari Scalev.
-  // Mengembalikan {paket, order} bila valid, atau null.
   cekRedirect() {
     const p = new URLSearchParams(window.location.search);
     const slug = p.get('aktivasi');
@@ -56,7 +50,6 @@ const Payment = {
     return null;
   },
 
-  // Bersihkan parameter dari URL agar tidak terbaca ulang saat refresh
   bersihkanURL() {
     if (window.history.replaceState) {
       window.history.replaceState({}, document.title, window.location.pathname);

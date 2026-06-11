@@ -1,76 +1,85 @@
-# 🌸 Bidanara — Sahabat Kesehatan Wanita
+# ۞ Tadabbur — Menyelami Keajaiban Al-Qur'an
 
-Aplikasi web **all-in-one** kesehatan wanita berbahasa Indonesia dengan **hasil instan**.
-Dirancang dengan acuan klinis kebidanan & kandungan, siap dijual dengan model **Gratis + Premium + Langganan**.
+Web-app **all-in-one** berbahasa Indonesia yang membedah setiap ayat Al-Qur'an
+dalam **6 lapisan tadabbur**, agar pembaca *amazed* pada kemukjizatan Al-Qur'an.
+Dijual dengan model **langganan bulanan** lewat **Scalev**.
 
-> ⚠️ Alat bantu edukasi & pemantauan mandiri — **bukan** pengganti diagnosis tenaga medis.
+> 📚 Konten edukatif. Untuk pendalaman, selalu rujuk ulama & guru terpercaya.
 
-## ✨ Fitur
+## ✨ Format Konten (per ayat)
+Setiap ayat mengikuti **satu skema baku** — inilah produk inti & pembedanya:
 
-### Gratis
-- **Kalkulator Kehamilan** — usia kehamilan & HPL (Naegele's rule + koreksi siklus), perkembangan janin per minggu.
-- **Estimasi Berat Janin** — rumus Johnson dari Tinggi Fundus Uteri (TFU).
-- **Kalkulator Masa Subur** — prediksi ovulasi & jendela subur.
-- **IMT (cut-off Asia-Pasifik)**, **Skrining Anemia** (WHO), **Skrining PCOS** (kriteria Rotterdam).
+1. **Teks** — Arab + transliterasi + terjemah
+2. **Asbabun Nuzul** — sebab/latar turunnya ayat
+3. **Tafsir Ringkas** — makna inti
+4. **Hikmah Ayat** — pelajaran/ibrah *(lapisan gratis sebagai teaser)*
+5. **Keajaiban Linguistik** ✨ — *kenapa Allah memilih kata itu* (i'jaz/balaghah) → **pembeda utama**
+6. **Amalan & Kehidupan** — penerapan & contoh kasus keseharian
+   - plus **Rujukan** tafsir agar kredibel
 
-### Premium ✦
-- Kalender kesuburan **6 siklus** ke depan.
-- **Skrining Risiko Kanker** serviks & payudara (kesadaran faktor risiko).
-- **Risiko Preeklampsia** (adaptasi pedoman NICE).
-- **Riwayat tersimpan** otomatis + **ekspor laporan**.
+## 🧩 Fitur Aplikasi
+- **Ayat Hari Ini** — satu ayat berputar otomatis tiap hari (ritme langganan)
+- **Perpustakaan Ayat** — jelajah & buka detail per ayat
+- **Bookmark** & **Streak harian** — pendorong retensi
+- **Gratis vs Premium** — lapisan "wow" (asbabun nuzul, tafsir, linguistik, amalan)
+  dikunci sebagai pemicu beli; *Hikmah* terbuka gratis sebagai cicipan
+- **PWA** — bisa di-_install_ sebagai aplikasi di HP
 
-## 💰 Model Monetisasi
+## 💰 Model Monetisasi (Scalev)
 | Paket | Harga | Catatan |
 |------|-------|---------|
-| Bulanan | Rp 29.000 | Batal kapan saja |
-| Tahunan | Rp 189.000 | Hemat ~45% (≈ Rp 15.750/bln) |
-| Seumur Hidup | Rp 499.000 | Bayar sekali |
+| **Bulanan** | Rp 39.000/bln | Batal kapan saja (produk utama) |
+| **Tahunan** | Rp 299.000/thn | Hemat ~36% (≈ Rp 24.900/bln) |
+| **Seumur Hidup** | Rp 749.000 | Bayar sekali |
+
+> Lihat **[STRATEGI.md](STRATEGI.md)** untuk positioning, funnel marketing,
+> rencana retensi, dan catatan penting soal kredibilitas syar'i.
 
 ## 🚀 Menjalankan
-Aplikasi **statis** (tanpa build, tanpa dependensi). Cukup buka `index.html`, atau jalankan server lokal:
+Aplikasi **statis** (tanpa build, tanpa dependensi):
 
 ```bash
 python3 -m http.server 8000
 # buka http://localhost:8000
 ```
 
-Bisa di-_install_ sebagai aplikasi (PWA) lewat menu browser di HP.
+## ✍️ Menambah Ayat Baru
+Cukup edit satu file: **`assets/js/content.js`**. Salin satu objek di array
+`AYAT`, isi ke-6 lapisan + sumber, lalu tempel. Tidak perlu menyentuh kode lain.
+Set `gratis: true` bila ingin ayat itu jadi etalase terbuka penuh.
 
 ## 📁 Struktur
 ```
-index.html               # Antarmuka & navigasi
-assets/css/styles.css    # Tema visual
-assets/js/calculators.js # Mesin perhitungan medis (akurasi klinis)
-assets/js/storage.js     # Status Premium & riwayat (localStorage)
-assets/js/app.js         # Navigasi, render, gating Premium
-manifest.webmanifest     # Konfigurasi PWA
+index.html                # Landing + shell aplikasi (tab navigasi)
+assets/css/styles.css     # Tema zamrud & emas
+assets/js/content.js      # 🟢 Mesin konten — skema baku + ayat (edit di sini)
+assets/js/app.js          # Render 6 lapisan, gating Premium, bookmark, streak
+assets/js/storage.js      # Status Premium, bookmark, streak (localStorage)
+assets/js/payment.js      # Integrasi checkout Scalev
+manifest.webmanifest      # Konfigurasi PWA
+STRATEGI.md               # Strategi bisnis & konten
 ```
 
 ## 💳 Pembayaran via Scalev
-Premium dijual lewat **[Scalev](https://scalev.id)**. Cara mengaktifkan:
-
-1. Buat 3 produk/checkout di dashboard Scalev (Bulanan, Tahunan, Seumur Hidup).
+1. Buat 3 produk/checkout di dashboard **[Scalev](https://scalev.id)** (Bulanan, Tahunan, Seumur Hidup).
 2. Salin URL checkout ke `assets/js/payment.js` → `Payment.CONFIG.checkout`.
-3. Di Scalev, set **redirect setelah pembayaran berhasil** ke:
+3. Set **redirect setelah pembayaran berhasil** ke:
    ```
    https://DOMAIN-ANDA/index.html?aktivasi={PAKET}&order={ORDER_ID}
    ```
    `{PAKET}` = `bulanan` | `tahunan` | `seumur-hidup`. Pembeli yang kembali
-   membawa parameter ini akan **otomatis** mendapat akses Premium.
-4. Cadangan: pembeli bisa memasukkan **Order ID** manual lewat menu
-   "Sudah bayar? Aktivasi dengan Order ID" di modal upgrade.
+   membawa parameter ini **otomatis** mendapat akses Premium.
+4. Cadangan: pembeli memasukkan **Order ID** manual lewat menu di modal upgrade.
 
 > Selama URL Scalev masih placeholder, tombol paket berjalan dalam **mode demo**
-> (langsung membuka Premium tanpa bayar) untuk keperluan pengujian.
+> (langsung membuka Premium tanpa bayar) untuk pengujian.
 
-### Catatan keamanan komersial
-Gating Premium ini **sisi-klien**. Untuk verifikasi anti-bypass yang kuat,
-tambahkan webhook Scalev → server Anda untuk memvalidasi Order ID & status
-langganan, serta autentikasi pengguna agar riwayat tersinkron lintas perangkat.
-
-## 📚 Acuan Klinis
-Naegele's rule · WHO (anemia kehamilan) · Kriteria Rotterdam (PCOS) · Pedoman NICE (preeklampsia) ·
-Rumus Johnson (TBJ) · Cut-off IMT Asia-Pasifik (WHO).
+### ⚠️ Catatan keamanan komersial
+Gating Premium ini **sisi-klien** (mudah di-bypass pengguna teknis). Untuk
+produksi: tambahkan **webhook Scalev → server** untuk memvalidasi status
+langganan + autentikasi pengguna agar akses & bookmark tersinkron lintas
+perangkat. Pertimbangkan juga melindungi teks tafsir di balik API server agar
+tidak tersalin gratis dari kode sumber.
 
 ---
-© 2026 Bidanara · Dibuat dengan ❤️ untuk perempuan Indonesia.
+© 2026 Tadabbur · Dibuat untuk mendekatkan hati pada Al-Qur'an 💚

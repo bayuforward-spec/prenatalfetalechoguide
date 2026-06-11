@@ -1,15 +1,15 @@
 {
-  "name": "Bidanara — Sahabat Kesehatan Wanita",
-  "short_name": "Bidanara",
-  "description": "Aplikasi kesehatan wanita all-in-one: kalkulator kehamilan, masa subur, IMT, & skrining kesehatan. Hasil instan berbahasa Indonesia.",
+  "name": "Tadabbur — Menyelami Keajaiban Al-Qur'an",
+  "short_name": "Tadabbur",
+  "description": "Satu ayat, sejuta makna. Asbabun nuzul, tafsir, hikmah, keajaiban linguistik, & amalan keseharian dari setiap ayat Al-Qur'an.",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#fdf7fb",
-  "theme_color": "#e7689a",
+  "background_color": "#f7f5ee",
+  "theme_color": "#0f6b4f",
   "lang": "id",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23e7689a'/><text x='50' y='72' font-size='62' text-anchor='middle'>🌸</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230f6b4f'/><text x='50' y='70' font-size='54' text-anchor='middle' fill='%23c9a227'>%DB%9E</text></svg>",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
