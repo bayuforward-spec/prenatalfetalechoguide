@@ -1,11 +1,11 @@
-# 📈 Strategi Bisnis & Konten — Tadabbur
+# 📈 Strategi Bisnis & Konten — The Quran Lens
 
 Dokumen kerja untuk founder. Bukan dokumen final; revisi sambil jalan.
 
 ---
 
 ## 1. Positioning (1 kalimat)
-> **Tadabbur** = aplikasi harian yang membuatmu *jatuh cinta & takjub* pada
+> **The Quran Lens** = aplikasi harian yang membuatmu *jatuh cinta & takjub* pada
 > Al-Qur'an, dengan membongkar **keajaiban di balik setiap kata** —
 > bukan sekadar terjemah, tapi *kenapa* Allah memilih kata itu.
 
@@ -17,7 +17,7 @@ kata lain" itu yang bikin orang merinding dan mau bayar.
 
 ## 2. Kenapa orang mau bayar (padahal banyak yang gratis)
 Tantangan terbesar: Quran.com, Muslim Pro, tafsir gratis, YouTube ustadz.
-Maka value Tadabbur harus terasa **berbeda kategori**, bukan "tafsir berbayar":
+Maka value The Quran Lens harus terasa **berbeda kategori**, bukan "tafsir berbayar":
 
 1. **Kurasi & kepadatan** — 6 lapisan rapi dalam 1 layar, tanpa perlu buka 5 kitab.
 2. **Keajaiban linguistik** — konten yang tidak tersedia gratis dalam bahasa Indonesia yang mudah.
@@ -58,7 +58,7 @@ Ini juga alasan langganan tetap hidup (selalu ada yang baru).
 
 ## 5. Funnel marketing (validasi sebelum jualan besar)
 ```
-Reels/TikTok "keajaiban 1 kata"  →  Profil/bio  →  Web Tadabbur (ayat gratis)
+Reels/TikTok "keajaiban 1 kata"  →  Profil/bio  →  Web The Quran Lens (ayat gratis)
         →  rasakan kualitas  →  modal upgrade  →  checkout Scalev  →  Premium
 ```
 - **Konten medsos = potongan lapisan linguistik.** Contoh hook: "Kenapa Al-Qur'an
@@ -104,12 +104,17 @@ Islami Indonesia di kisaran Rp 20–50rb/bln. Mulai dari sini, naikkan bila valu
 ## 9. Roadmap teknis (dari prototype → produk komersial)
 **Sekarang (sudah jalan):** web statis + PWA, 6 lapisan, gating sisi-klien, Scalev redirect, demo mode.
 
+**Sudah dikerjakan:**
+- ✅ **Webhook Scalev → server** + endpoint `/api/verify`: verifikasi pembayaran
+  anti-bypass (lihat `server/`). Tinggal sesuaikan field payload Scalev & deploy.
+
 **Berikutnya bila serius jualan:**
-1. **Backend ringan** (mis. Supabase/Firebase): akun pengguna + simpan status langganan.
-2. **Webhook Scalev → server**: verifikasi pembayaran anti-bypass.
+1. **Deploy backend** (Railway/Render/Fly/VPS) + isi `apiBase` di `payment.js`.
+2. **Akun pengguna** (email/OTP) → langganan terikat akun, sinkron lintas perangkat.
 3. **Teks premium via API** (bukan di `content.js`) agar tak tersalin gratis.
-4. **Push notification** untuk ayat harian.
-5. **CMS sederhana** agar tim non-teknis bisa menambah ayat tanpa ngoding.
+4. **Database** menggantikan file JSON saat skala bertambah.
+5. **Push notification** untuk ayat harian.
+6. **CMS sederhana** agar tim non-teknis bisa menambah ayat tanpa ngoding.
 
 ---
 

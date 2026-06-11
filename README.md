@@ -1,4 +1,4 @@
-# ۞ Tadabbur — Menyelami Keajaiban Al-Qur'an
+# ۞ The Quran Lens — Menyelami Keajaiban Al-Qur'an
 
 Web-app **all-in-one** berbahasa Indonesia yang membedah setiap ayat Al-Qur'an
 dalam **6 lapisan tadabbur**, agar pembaca *amazed* pada kemukjizatan Al-Qur'an.
@@ -55,8 +55,11 @@ assets/css/styles.css     # Tema zamrud & emas
 assets/js/content.js      # 🟢 Mesin konten — skema baku + ayat (edit di sini)
 assets/js/app.js          # Render 6 lapisan, gating Premium, bookmark, streak
 assets/js/storage.js      # Status Premium, bookmark, streak (localStorage)
-assets/js/payment.js      # Integrasi checkout Scalev
+assets/js/payment.js      # Integrasi checkout Scalev + verifikasi backend
 manifest.webmanifest      # Konfigurasi PWA
+server/                   # 🔐 Backend verifikasi langganan (anti-bypass)
+  ├─ server.js            #    Webhook Scalev + endpoint /api/verify
+  └─ README.md            #    Cara pasang & sesuaikan dengan Scalev
 STRATEGI.md               # Strategi bisnis & konten
 ```
 
@@ -74,12 +77,17 @@ STRATEGI.md               # Strategi bisnis & konten
 > Selama URL Scalev masih placeholder, tombol paket berjalan dalam **mode demo**
 > (langsung membuka Premium tanpa bayar) untuk pengujian.
 
-### ⚠️ Catatan keamanan komersial
-Gating Premium ini **sisi-klien** (mudah di-bypass pengguna teknis). Untuk
-produksi: tambahkan **webhook Scalev → server** untuk memvalidasi status
-langganan + autentikasi pengguna agar akses & bookmark tersinkron lintas
-perangkat. Pertimbangkan juga melindungi teks tafsir di balik API server agar
-tidak tersalin gratis dari kode sumber.
+### 🔐 Verifikasi anti-bypass (backend)
+Gating sisi-klien mudah di-bypass. Karena itu tersedia **backend di `server/`**
+yang memverifikasi pembayaran lewat **webhook Scalev bertanda tangan**, lalu
+aplikasi mengecek Order ID ke `/api/verify` sebelum membuka Premium.
+
+Aktifkan dengan mengisi `Payment.CONFIG.apiBase` di `assets/js/payment.js`.
+Selama kosong, aplikasi berjalan dalam **mode demo** sisi-klien.
+Lihat **[server/README.md](server/README.md)** untuk pemasangan & penyesuaian
+field Scalev. Untuk sinkron lintas perangkat & melindungi teks tafsir agar tak
+tersalin dari kode, tambahkan autentikasi pengguna + sajikan konten premium
+dari server (tercatat di roadmap `STRATEGI.md`).
 
 ---
-© 2026 Tadabbur · Dibuat untuk mendekatkan hati pada Al-Qur'an 💚
+© 2026 The Quran Lens · Dibuat untuk mendekatkan hati pada Al-Qur'an 💚

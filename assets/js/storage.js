@@ -5,9 +5,9 @@
  * validasi langganan harus di server (webhook Scalev + autentikasi pengguna).
  */
 const Store = {
-  KEY_PRO: 'tadabbur_pro',
-  KEY_MARK: 'tadabbur_bookmark',
-  KEY_STREAK: 'tadabbur_streak',
+  KEY_PRO: 'quranlens_pro',
+  KEY_MARK: 'quranlens_bookmark',
+  KEY_STREAK: 'quranlens_streak',
 
   /* ---------- Premium ---------- */
   isPro() {

@@ -24,6 +24,23 @@ const Payment = {
       'tahunan': 'Tahunan',
       'seumur-hidup': 'Seumur Hidup',
     },
+    // URL backend verifikasi (server/). KOSONGKAN untuk mode demo sisi-klien.
+    // Contoh: 'https://api.domain-anda.com'  ->  memanggil /api/verify
+    apiBase: '',
+  },
+
+  // True bila backend verifikasi sudah dipasang
+  backendAktif() { return !!this.CONFIG.apiBase; },
+
+  // Verifikasi Order ID ke server. Mengembalikan {active, paket, expiresAt} | {active:false}.
+  async verifikasiOrder(order) {
+    if (!this.backendAktif()) return { active: false, error: 'backend-nonaktif' };
+    try {
+      const r = await fetch(`${this.CONFIG.apiBase}/api/verify?order=${encodeURIComponent(order)}`);
+      return await r.json();
+    } catch (e) {
+      return { active: false, error: 'jaringan' };
+    }
   },
 
   terkonfigurasi(paket) {

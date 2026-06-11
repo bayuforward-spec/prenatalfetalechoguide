@@ -22,9 +22,15 @@ const App = {
     // Aktivasi otomatis bila pembeli kembali dari checkout Scalev
     const redir = Payment.cekRedirect();
     if (redir) {
-      Store.setPro(redir.paket, redir.order);
       Payment.bersihkanURL();
-      setTimeout(() => this.toast(`🎉 Pembayaran berhasil! Premium ${redir.paket} aktif.`), 400);
+      if (Payment.backendAktif()) {
+        // Verifikasi ke server (anti-bypass) sebelum membuka Premium
+        this.aktifkan(redir.order, redir.paket, true);
+      } else {
+        // Mode demo sisi-klien
+        Store.setPro(redir.paket, redir.order);
+        setTimeout(() => this.toast(`🎉 Pembayaran berhasil! Premium ${redir.paket} aktif.`), 400);
+      }
     }
 
     const s = Store.catatKunjungan();
@@ -192,10 +198,30 @@ const App = {
     const paket = document.getElementById('m-paket').value;
     const order = (document.getElementById('m-order').value || '').trim();
     if (!order) return this.toast('Masukkan Order ID dari Scalev terlebih dahulu.');
-    Store.setPro(paket, order);
-    this.closeUpgrade();
-    this.afterUnlock();
-    this.toast(`✓ Premium ${paket} aktif. Terima kasih 💚`);
+    if (Payment.backendAktif()) {
+      this.aktifkan(order, paket, false);
+    } else {
+      // Mode demo sisi-klien (tanpa backend)
+      Store.setPro(paket, order);
+      this.closeUpgrade();
+      this.afterUnlock();
+      this.toast(`✓ Premium ${paket} aktif. Terima kasih 💚`);
+    }
+  },
+
+  // Aktivasi dengan verifikasi server. `paketHint` dipakai bila server tak
+  // mengembalikan nama paket. `dariRedirect` menentukan gaya notifikasi.
+  async aktifkan(order, paketHint, dariRedirect) {
+    this.toast('Memverifikasi pembayaran…');
+    const hasil = await Payment.verifikasiOrder(order);
+    if (hasil && hasil.active) {
+      Store.setPro(hasil.paket || paketHint, order);
+      this.closeUpgrade();
+      this.afterUnlock();
+      this.toast(`🎉 Pembayaran terverifikasi! Premium ${hasil.paket || paketHint} aktif.`);
+    } else {
+      this.toast('⚠️ Order belum terverifikasi. Pastikan pembayaran selesai, lalu coba lagi.');
+    }
   },
 
   afterUnlock() {
