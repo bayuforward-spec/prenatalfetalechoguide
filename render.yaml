@@ -1,0 +1,32 @@
+# Render — deploy backend verifikasi langganan (folder server/)
+# Catatan: tier free berfilesystem EFEMERAL — file data/subs.json TIDAK persisten
+# antar restart/deploy. Untuk uang sungguhan, pasang Disk (berbayar) lalu set
+# DATA_FILE ke path disk, ATAU pindah ke database. Lihat DEPLOY.md.
+services:
+  - type: web
+    name: quran-lens-api
+    runtime: node
+    rootDir: server
+    plan: free
+    buildCommand: ""
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: SCALEV_WEBHOOK_SECRET   # isi manual di dashboard (rahasia)
+        sync: false
+      - key: TOKEN_SECRET            # dibuat otomatis & aman oleh Render
+        generateValue: true
+      - key: SCALEV_SIGNATURE_HEADER
+        value: x-scalev-signature
+      - key: ALLOW_ORIGIN            # isi domain frontend Anda, mis. https://app.domain.com
+        sync: false
+      # Jika memasang Disk persisten, arahkan penyimpanan ke sana:
+      # - key: DATA_FILE
+      #   value: /var/data/subs.json
+
+    # Aktifkan blok ini bila ingin data langganan persisten (berbayar):
+    # disk:
+    #   name: quran-lens-data
+    #   mountPath: /var/data
+    #   sizeGB: 1
