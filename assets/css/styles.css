@@ -1,0 +1,177 @@
+/* ===== Bidanara — Tema kesehatan wanita (lembut, profesional) ===== */
+:root {
+  --pink: #e7689a;
+  --pink-soft: #fbe4ee;
+  --plum: #6d3b6b;
+  --teal: #2b9d9b;
+  --teal-soft: #d9f2f1;
+  --ink: #2c2434;
+  --muted: #8a7f93;
+  --bg: #fdf7fb;
+  --card: #ffffff;
+  --line: #f0e3ec;
+  --ok: #2f9e6b;
+  --ok-bg: #e3f6ec;
+  --warn: #c98a16;
+  --warn-bg: #fbf1da;
+  --bad: #d2485a;
+  --bad-bg: #fbe5e8;
+  --info: #3a78c2;
+  --info-bg: #e6f0fb;
+  --radius: 16px;
+  --shadow: 0 8px 30px rgba(109,59,107,.10);
+  --font: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  color: var(--ink);
+  background: linear-gradient(180deg, #fdf7fb 0%, #f7f0fa 100%);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== Header ===== */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px;
+  background: rgba(255,255,255,.85);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.25rem; color: var(--plum); }
+.brand .logo {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--pink), var(--plum));
+  display: grid; place-items: center; color: #fff; font-size: 1rem;
+}
+.brand small { display:block; font-weight: 500; font-size: .62rem; color: var(--muted); letter-spacing: .12em; text-transform: uppercase; }
+.badge-pro {
+  font-size: .65rem; font-weight: 800; letter-spacing: .08em;
+  background: linear-gradient(135deg, #f5c451, #e79a2b); color: #4a2e00;
+  padding: 4px 9px; border-radius: 999px; cursor: pointer; border: none;
+}
+.badge-pro.is-pro { background: linear-gradient(135deg, var(--teal), #1f7d7b); color: #fff; }
+
+/* ===== Hero ===== */
+.hero {
+  text-align: center; padding: 40px 20px 14px; max-width: 720px; margin: 0 auto;
+}
+.hero h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: var(--plum); line-height: 1.2; }
+.hero h1 span { color: var(--pink); }
+.hero p { color: var(--muted); margin-top: 10px; font-size: 1.02rem; }
+
+/* ===== Tabs ===== */
+.tabs {
+  display: flex; gap: 8px; overflow-x: auto; padding: 16px 20px 4px;
+  max-width: 980px; margin: 0 auto; scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  flex: 0 0 auto; border: 1px solid var(--line); background: #fff;
+  padding: 10px 16px; border-radius: 999px; font-size: .9rem; font-weight: 600;
+  color: var(--muted); cursor: pointer; transition: .18s; white-space: nowrap;
+}
+.tab:hover { border-color: var(--pink); color: var(--pink); }
+.tab.active { background: var(--pink); border-color: var(--pink); color: #fff; box-shadow: 0 4px 14px rgba(231,104,154,.35); }
+
+/* ===== Layout ===== */
+.wrap { max-width: 980px; margin: 0 auto; padding: 10px 20px 60px; }
+.panel { display: none; animation: fade .3s ease; }
+.panel.active { display: block; }
+@keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+.grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); }
+
+.card {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 22px; box-shadow: var(--shadow);
+}
+.card h3 { color: var(--plum); font-size: 1.12rem; display: flex; align-items: center; gap: 9px; }
+.card h3 .ic { font-size: 1.2rem; }
+.card .sub { color: var(--muted); font-size: .85rem; margin: 4px 0 16px; }
+
+/* ===== Form ===== */
+label.f { display: block; font-size: .82rem; font-weight: 600; color: var(--ink); margin: 12px 0 5px; }
+input[type=date], input[type=number], select {
+  width: 100%; padding: 11px 12px; border: 1px solid #e6d8e3; border-radius: 11px;
+  font-size: .95rem; font-family: var(--font); background: #fffdfe; color: var(--ink);
+}
+input:focus, select:focus { outline: none; border-color: var(--pink); box-shadow: 0 0 0 3px var(--pink-soft); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.check { display: flex; align-items: flex-start; gap: 9px; margin: 9px 0; font-size: .88rem; cursor: pointer; }
+.check input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--pink); flex: 0 0 auto; }
+
+.btn {
+  width: 100%; margin-top: 18px; padding: 13px; border: none; border-radius: 12px;
+  background: linear-gradient(135deg, var(--pink), var(--plum)); color: #fff;
+  font-size: 1rem; font-weight: 700; cursor: pointer; transition: .18s;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(231,104,154,.4); }
+.btn.ghost { background: #fff; color: var(--pink); border: 1px solid var(--pink); }
+
+/* ===== Hasil ===== */
+.result { margin-top: 18px; padding: 16px; border-radius: 12px; background: var(--pink-soft); display: none; }
+.result.show { display: block; animation: fade .25s; }
+.result .big { font-size: 1.5rem; font-weight: 800; color: var(--plum); }
+.result .line { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px dashed #e9d6e3; font-size: .92rem; }
+.result .line:last-child { border-bottom: none; }
+.result .line b { color: var(--plum); }
+.pill { display: inline-block; padding: 5px 12px; border-radius: 999px; font-weight: 700; font-size: .85rem; }
+.pill.ok { background: var(--ok-bg); color: var(--ok); }
+.pill.warn { background: var(--warn-bg); color: var(--warn); }
+.pill.bad { background: var(--bad-bg); color: var(--bad); }
+.pill.info { background: var(--info-bg); color: var(--info); }
+.advice { margin-top: 12px; font-size: .88rem; color: var(--ink); background: #fff; padding: 12px; border-radius: 10px; border-left: 4px solid var(--pink); }
+
+/* ===== Premium gate ===== */
+.locked { position: relative; }
+.lock-overlay {
+  position: absolute; inset: 0; background: rgba(255,255,255,.72); backdrop-filter: blur(3px);
+  border-radius: var(--radius); display: grid; place-items: center; text-align: center; padding: 20px; z-index: 5;
+}
+.lock-overlay .lk { font-size: 1.6rem; }
+.lock-overlay p { color: var(--plum); font-weight: 700; margin: 8px 0; }
+
+/* ===== Modal ===== */
+.modal-bg {
+  position: fixed; inset: 0; background: rgba(44,36,52,.55); display: none;
+  place-items: center; z-index: 100; padding: 20px;
+}
+.modal-bg.show { display: grid; animation: fade .2s; }
+.modal {
+  background: #fff; border-radius: 20px; max-width: 440px; width: 100%; padding: 28px; text-align: center;
+}
+.modal h2 { color: var(--plum); }
+.price-list { text-align: left; margin: 18px 0; }
+.price-list .plan {
+  border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; transition: .15s;
+}
+.price-list .plan:hover { border-color: var(--pink); background: var(--pink-soft); }
+.price-list .plan.best { border-color: var(--teal); background: var(--teal-soft); }
+.price-list .plan .pn { font-weight: 800; color: var(--plum); display:flex; justify-content: space-between; }
+.price-list .plan .pd { font-size: .82rem; color: var(--muted); }
+.tag-best { font-size: .62rem; background: var(--teal); color: #fff; padding: 2px 8px; border-radius: 999px; }
+.close-x { position: absolute; }
+
+/* ===== Disclaimer & footer ===== */
+.disclaimer {
+  max-width: 980px; margin: 0 auto 30px; padding: 14px 20px; font-size: .8rem; color: var(--muted);
+  background: #fff7e6; border: 1px solid #f3e3bd; border-radius: 12px;
+}
+footer { text-align: center; padding: 26px 20px 40px; color: var(--muted); font-size: .82rem; }
+footer a { color: var(--pink); text-decoration: none; }
+
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120px);
+  background: var(--plum); color: #fff; padding: 12px 22px; border-radius: 999px; font-weight: 600;
+  font-size: .9rem; z-index: 200; transition: transform .3s; box-shadow: var(--shadow);
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 480px) {
+  .row2 { grid-template-columns: 1fr; }
+  .card { padding: 18px; }
+}

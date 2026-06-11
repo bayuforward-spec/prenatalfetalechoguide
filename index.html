@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Bidanara — aplikasi kesehatan wanita all-in-one: kalkulator kehamilan, masa subur, BMI, & skrining kesehatan. Hasil instan, akurat, berbahasa Indonesia.">
+<meta name="theme-color" content="#e7689a">
+<title>Bidanara — Sahabat Kesehatan Wanita</title>
+<link rel="stylesheet" href="assets/css/styles.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">🌸</div>
+    <div>Bidanara<small>Kesehatan Wanita</small></div>
+  </div>
+  <button class="badge-pro" id="proBadge" onclick="App.openUpgrade()">✦ Upgrade Premium</button>
+</header>
+
+<section class="hero">
+  <h1>Pantau <span>kesehatan wanita</span> Anda dengan hasil instan</h1>
+  <p>Kalkulator kehamilan, masa subur, hingga skrining kesehatan reproduksi — dirancang oleh tenaga medis, langsung di genggaman Anda.</p>
+</section>
+
+<nav class="tabs" id="tabs">
+  <button class="tab active" data-tab="kehamilan">🤰 Kehamilan & Janin</button>
+  <button class="tab" data-tab="kesuburan">🌙 Siklus & Kesuburan</button>
+  <button class="tab" data-tab="skrining">🩺 Skrining Kesehatan</button>
+  <button class="tab" data-tab="riwayat">📋 Riwayat Saya</button>
+</nav>
+
+<main class="wrap">
+
+  <!-- ============ KEHAMILAN ============ -->
+  <section class="panel active" id="panel-kehamilan">
+    <div class="grid">
+
+      <div class="card">
+        <h3><span class="ic">📅</span> Kalkulator Kehamilan</h3>
+        <p class="sub">Hitung usia kehamilan & Hari Perkiraan Lahir (HPL) dari HPHT.</p>
+        <label class="f">Hari Pertama Haid Terakhir (HPHT)</label>
+        <input type="date" id="k-hpht">
+        <label class="f">Rata-rata panjang siklus haid (hari)</label>
+        <input type="number" id="k-siklus" value="28" min="21" max="40">
+        <button class="btn" onclick="App.runKehamilan()">Hitung Sekarang</button>
+        <div class="result" id="res-kehamilan"></div>
+      </div>
+
+      <div class="card">
+        <h3><span class="ic">⚖️</span> Estimasi Berat Janin</h3>
+        <p class="sub">Rumus Johnson dari Tinggi Fundus Uteri (TFU) — bedah praktis.</p>
+        <label class="f">Tinggi Fundus Uteri / TFU (cm)</label>
+        <input type="number" id="k-tfu" placeholder="contoh: 30" min="15" max="45">
+        <label class="check"><input type="checkbox" id="k-pap"> Kepala janin sudah masuk panggul (PAP)</label>
+        <button class="btn" onclick="App.runTBJ()">Estimasi Berat</button>
+        <div class="result" id="res-tbj"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ KESUBURAN ============ -->
+  <section class="panel" id="panel-kesuburan">
+    <div class="grid">
+      <div class="card">
+        <h3><span class="ic">🌙</span> Kalkulator Masa Subur</h3>
+        <p class="sub">Prediksi ovulasi & jendela subur untuk merencanakan / menunda kehamilan.</p>
+        <label class="f">Tanggal hari pertama haid terakhir</label>
+        <input type="date" id="s-haid">
+        <label class="f">Rata-rata panjang siklus (hari)</label>
+        <input type="number" id="s-siklus" value="28" min="21" max="40">
+        <button class="btn" onclick="App.runKesuburan()">Hitung Masa Subur</button>
+        <div class="result" id="res-kesuburan"></div>
+      </div>
+
+      <div class="card locked" data-premium>
+        <h3><span class="ic">📈</span> Prediksi 6 Bulan ke Depan</h3>
+        <p class="sub">Kalender kesuburan & perkiraan haid 6 siklus berikutnya.</p>
+        <label class="f">Tanggal haid terakhir</label>
+        <input type="date" id="s6-haid">
+        <label class="f">Panjang siklus (hari)</label>
+        <input type="number" id="s6-siklus" value="28" min="21" max="40">
+        <button class="btn" onclick="App.runKesuburan6()">Buat Kalender</button>
+        <div class="result" id="res-kesuburan6"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SKRINING ============ -->
+  <section class="panel" id="panel-skrining">
+    <div class="grid">
+
+      <div class="card">
+        <h3><span class="ic">⚖️</span> Indeks Massa Tubuh (IMT)</h3>
+        <p class="sub">Cut-off Asia-Pasifik untuk wanita dewasa.</p>
+        <div class="row2">
+          <div><label class="f">Berat (kg)</label><input type="number" id="b-berat" placeholder="55"></div>
+          <div><label class="f">Tinggi (cm)</label><input type="number" id="b-tinggi" placeholder="160"></div>
+        </div>
+        <button class="btn" onclick="App.runBMI()">Hitung IMT</button>
+        <div class="result" id="res-bmi"></div>
+      </div>
+
+      <div class="card">
+        <h3><span class="ic">🩸</span> Skrining Anemia Kehamilan</h3>
+        <p class="sub">Berdasarkan kadar Hemoglobin (cut-off WHO).</p>
+        <label class="f">Kadar Hb (g/dL)</label>
+        <input type="number" id="a-hb" step="0.1" placeholder="11.5">
+        <label class="f">Trimester saat ini</label>
+        <select id="a-tri"><option value="1">Trimester 1</option><option value="2">Trimester 2</option><option value="3">Trimester 3</option></select>
+        <button class="btn" onclick="App.runAnemia()">Periksa</button>
+        <div class="result" id="res-anemia"></div>
+      </div>
+
+      <div class="card">
+        <h3><span class="ic">🌺</span> Skrining PCOS</h3>
+        <p class="sub">Kriteria Rotterdam (≥2 dari 3 terpenuhi).</p>
+        <label class="check"><input type="checkbox" id="p-siklus"> Siklus haid tidak teratur / jarang (oligo-anovulasi)</label>
+        <label class="check"><input type="checkbox" id="p-androgen"> Tanda kelebihan androgen (jerawat parah, bulu berlebih, rambut rontok)</label>
+        <label class="check"><input type="checkbox" id="p-usg"> Hasil USG menunjukkan ovarium polikistik</label>
+        <button class="btn" onclick="App.runPCOS()">Cek Kriteria</button>
+        <div class="result" id="res-pcos"></div>
+      </div>
+
+      <div class="card locked" data-premium>
+        <h3><span class="ic">🎗️</span> Skrining Risiko Kanker Reproduksi</h3>
+        <p class="sub">Kesadaran faktor risiko kanker serviks & payudara.</p>
+        <label class="f">Usia (tahun)</label>
+        <input type="number" id="c-usia" placeholder="32">
+        <label class="check"><input type="checkbox" id="c-dini"> Aktif seksual sejak usia < 18 tahun</label>
+        <label class="check"><input type="checkbox" id="c-partner"> Lebih dari satu pasangan seksual</label>
+        <label class="check"><input type="checkbox" id="c-rokok"> Merokok / terpapar asap rokok</label>
+        <label class="check"><input type="checkbox" id="c-keluarga"> Riwayat kanker pada keluarga</label>
+        <label class="check"><input type="checkbox" id="c-pap"> Belum pernah Pap smear / IVA</label>
+        <label class="check"><input type="checkbox" id="c-sadari"> Tidak rutin melakukan SADARI</label>
+        <button class="btn" onclick="App.runKanker()">Hitung Skor Risiko</button>
+        <div class="result" id="res-kanker"></div>
+      </div>
+
+      <div class="card locked" data-premium>
+        <h3><span class="ic">🫀</span> Risiko Preeklampsia</h3>
+        <p class="sub">Adaptasi faktor risiko pedoman NICE.</p>
+        <p style="font-size:.8rem;font-weight:700;color:var(--bad);margin-top:6px">Faktor risiko TINGGI</p>
+        <label class="check"><input type="checkbox" data-pe-h> Hipertensi pada kehamilan sebelumnya</label>
+        <label class="check"><input type="checkbox" data-pe-h> Penyakit ginjal kronik</label>
+        <label class="check"><input type="checkbox" data-pe-h> Penyakit autoimun (lupus/APS)</label>
+        <label class="check"><input type="checkbox" data-pe-h> Diabetes tipe 1 atau 2</label>
+        <label class="check"><input type="checkbox" data-pe-h> Hipertensi kronik</label>
+        <p style="font-size:.8rem;font-weight:700;color:var(--warn);margin-top:10px">Faktor risiko SEDANG</p>
+        <label class="check"><input type="checkbox" data-pe-m> Kehamilan pertama</label>
+        <label class="check"><input type="checkbox" data-pe-m> Usia ≥ 40 tahun</label>
+        <label class="check"><input type="checkbox" data-pe-m> Jarak kehamilan > 10 tahun</label>
+        <label class="check"><input type="checkbox" data-pe-m> IMT ≥ 35 di awal kehamilan</label>
+        <label class="check"><input type="checkbox" data-pe-m> Riwayat preeklampsia di keluarga</label>
+        <label class="check"><input type="checkbox" data-pe-m> Kehamilan kembar</label>
+        <button class="btn" onclick="App.runPreeklampsia()">Nilai Risiko</button>
+        <div class="result" id="res-pe"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ RIWAYAT ============ -->
+  <section class="panel" id="panel-riwayat">
+    <div class="card locked" data-premium style="max-width:640px;margin:0 auto">
+      <h3><span class="ic">📋</span> Riwayat & Laporan Saya</h3>
+      <p class="sub">Semua hasil perhitungan tersimpan otomatis di perangkat Anda (fitur Premium).</p>
+      <div id="riwayat-list"></div>
+      <button class="btn ghost" onclick="App.exportRiwayat()" style="margin-top:14px">⬇️ Ekspor Laporan (.txt)</button>
+      <button class="btn ghost" onclick="App.clearRiwayat()" style="margin-top:8px;color:var(--bad);border-color:var(--bad)">🗑️ Hapus Semua Riwayat</button>
+    </div>
+  </section>
+
+</main>
+
+<p class="disclaimer">⚠️ <b>Penting:</b> Bidanara adalah alat bantu edukasi & pemantauan mandiri. Hasil bersifat perkiraan dan <b>tidak menggantikan</b> diagnosis, pemeriksaan, atau nasihat tenaga medis. Selalu konsultasikan kondisi Anda dengan dokter atau bidan.</p>
+
+<footer>
+  © 2026 <b>Bidanara</b> · Sahabat Kesehatan Wanita · Dibuat dengan ❤️ untuk perempuan Indonesia<br>
+  <a href="#" onclick="App.openUpgrade();return false">Lihat Paket Premium</a>
+</footer>
+
+<!-- ===== Modal Upgrade ===== -->
+<div class="modal-bg" id="modalUpgrade">
+  <div class="modal">
+    <h2>✦ Bidanara Premium</h2>
+    <p style="color:var(--muted);margin-top:6px">Buka semua fitur lanjutan & simpan riwayat kesehatan Anda.</p>
+    <div class="price-list">
+      <div class="plan" onclick="App.activate('Bulanan')">
+        <div class="pn"><span>Bulanan</span><span>Rp 29.000</span></div>
+        <div class="pd">Akses penuh, dibayar tiap bulan. Batal kapan saja.</div>
+      </div>
+      <div class="plan best" onclick="App.activate('Tahunan')">
+        <div class="pn"><span>Tahunan <span class="tag-best">HEMAT 45%</span></span><span>Rp 189.000</span></div>
+        <div class="pd">Hanya ~Rp 15.750/bulan. Pilihan paling populer.</div>
+      </div>
+      <div class="plan" onclick="App.activate('Seumur Hidup')">
+        <div class="pn"><span>Seumur Hidup</span><span>Rp 499.000</span></div>
+        <div class="pd">Bayar sekali, akses selamanya + update gratis.</div>
+      </div>
+    </div>
+    <p style="font-size:.75rem;color:var(--muted)">Fitur Premium: kalender kesuburan 6 bulan, skrining kanker & preeklampsia, riwayat tersimpan, ekspor laporan, tanpa batas.</p>
+    <button class="btn" onclick="App.closeUpgrade()" style="margin-top:14px">Tutup</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="assets/js/calculators.js"></script>
+<script src="assets/js/storage.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
