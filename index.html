@@ -189,21 +189,31 @@
     <h2>✦ Bidanara Premium</h2>
     <p style="color:var(--muted);margin-top:6px">Buka semua fitur lanjutan & simpan riwayat kesehatan Anda.</p>
     <div class="price-list">
-      <div class="plan" onclick="App.activate('Bulanan')">
+      <div class="plan" onclick="App.beli('Bulanan')">
         <div class="pn"><span>Bulanan</span><span>Rp 29.000</span></div>
         <div class="pd">Akses penuh, dibayar tiap bulan. Batal kapan saja.</div>
       </div>
-      <div class="plan best" onclick="App.activate('Tahunan')">
+      <div class="plan best" onclick="App.beli('Tahunan')">
         <div class="pn"><span>Tahunan <span class="tag-best">HEMAT 45%</span></span><span>Rp 189.000</span></div>
         <div class="pd">Hanya ~Rp 15.750/bulan. Pilihan paling populer.</div>
       </div>
-      <div class="plan" onclick="App.activate('Seumur Hidup')">
+      <div class="plan" onclick="App.beli('Seumur Hidup')">
         <div class="pn"><span>Seumur Hidup</span><span>Rp 499.000</span></div>
         <div class="pd">Bayar sekali, akses selamanya + update gratis.</div>
       </div>
     </div>
-    <p style="font-size:.75rem;color:var(--muted)">Fitur Premium: kalender kesuburan 6 bulan, skrining kanker & preeklampsia, riwayat tersimpan, ekspor laporan, tanpa batas.</p>
-    <button class="btn" onclick="App.closeUpgrade()" style="margin-top:14px">Tutup</button>
+    <p style="font-size:.75rem;color:var(--muted)">Pembayaran aman via <b>Scalev</b>. Fitur Premium: kalender kesuburan 6 bulan, skrining kanker & preeklampsia, riwayat tersimpan, ekspor laporan, tanpa batas.</p>
+
+    <details style="margin-top:14px;text-align:left">
+      <summary style="cursor:pointer;font-size:.82rem;color:var(--pink);font-weight:700">Sudah bayar? Aktivasi dengan Order ID</summary>
+      <label class="f">Paket yang dibeli</label>
+      <select id="m-paket"><option>Bulanan</option><option>Tahunan</option><option>Seumur Hidup</option></select>
+      <label class="f">Order ID dari Scalev</label>
+      <input type="text" id="m-order" placeholder="contoh: SCL-123456" style="width:100%;padding:11px 12px;border:1px solid #e6d8e3;border-radius:11px;font-family:var(--font)">
+      <button class="btn" onclick="App.aktivasiManual()" style="margin-top:10px">Aktifkan Premium</button>
+    </details>
+
+    <button class="btn ghost" onclick="App.closeUpgrade()" style="margin-top:14px">Tutup</button>
   </div>
 </div>
 
@@ -211,6 +221,7 @@
 
 <script src="assets/js/calculators.js"></script>
 <script src="assets/js/storage.js"></script>
+<script src="assets/js/payment.js"></script>
 <script src="assets/js/app.js"></script>
 </body>
 </html>

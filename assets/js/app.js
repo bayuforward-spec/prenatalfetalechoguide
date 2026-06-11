@@ -10,6 +10,14 @@ const App = {
       if (!t) return;
       this.switchTab(t.dataset.tab);
     });
+    // Aktivasi otomatis bila pembeli kembali dari checkout Scalev
+    const redir = Payment.cekRedirect();
+    if (redir) {
+      Store.setPro(redir.paket, redir.order);
+      Payment.bersihkanURL();
+      setTimeout(() => this.toast(`🎉 Pembayaran berhasil! Premium ${redir.paket} aktif.`), 400);
+    }
+
     this.refreshProUI();
     this.renderRiwayat();
 
@@ -50,12 +58,31 @@ const App = {
   },
   openUpgrade() { document.getElementById('modalUpgrade').classList.add('show'); },
   closeUpgrade() { document.getElementById('modalUpgrade').classList.remove('show'); },
-  activate(paket) {
-    Store.setPro(paket);
+
+  // Klik paket -> arahkan ke checkout Scalev (atau aktivasi demo bila belum diset)
+  beli(paket) {
+    if (Payment.checkout(paket)) {
+      this.toast('Mengarahkan ke pembayaran Scalev…');
+    } else {
+      // Mode demo: belum ada URL Scalev terpasang
+      Store.setPro(paket, 'DEMO');
+      this.closeUpgrade();
+      this.refreshProUI();
+      this.renderRiwayat();
+      this.toast(`🎉 (Mode demo) Premium ${paket} aktif. Pasang URL Scalev untuk transaksi nyata.`);
+    }
+  },
+
+  // Aktivasi manual dengan Order ID dari Scalev (cadangan bila redirect gagal)
+  aktivasiManual() {
+    const sel = document.getElementById('m-paket');
+    const order = (document.getElementById('m-order').value || '').trim();
+    if (!order) return this.toast('Masukkan Order ID dari Scalev terlebih dahulu.');
+    Store.setPro(sel.value, order);
     this.closeUpgrade();
     this.refreshProUI();
     this.renderRiwayat();
-    this.toast(`🎉 Premium ${paket} aktif! Selamat menikmati semua fitur.`);
+    this.toast(`✅ Premium ${sel.value} aktif (Order ${order}).`);
   },
 
   /* ---------- Util render ---------- */

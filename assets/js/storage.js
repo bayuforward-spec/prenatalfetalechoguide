@@ -10,8 +10,8 @@ const Store = {
   KEY_HIST: 'bidanara_riwayat',
 
   isPro() { return localStorage.getItem(this.KEY_PRO) ? JSON.parse(localStorage.getItem(this.KEY_PRO)) : null; },
-  setPro(paket) {
-    const data = { paket, aktifSejak: new Date().toISOString() };
+  setPro(paket, order) {
+    const data = { paket, order: order || '-', aktifSejak: new Date().toISOString() };
     localStorage.setItem(this.KEY_PRO, JSON.stringify(data));
     return data;
   },

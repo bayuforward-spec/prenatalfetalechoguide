@@ -46,11 +46,27 @@ assets/js/app.js         # Navigasi, render, gating Premium
 manifest.webmanifest     # Konfigurasi PWA
 ```
 
-## 🔐 Catatan Komersial
-Gating Premium saat ini **sisi-klien** (demo). Untuk rilis komersial, integrasikan:
-1. Gerbang pembayaran (mis. Midtrans/Xendit/Stripe).
-2. Verifikasi lisensi/langganan di server.
-3. Autentikasi pengguna untuk sinkronisasi riwayat lintas perangkat.
+## 💳 Pembayaran via Scalev
+Premium dijual lewat **[Scalev](https://scalev.id)**. Cara mengaktifkan:
+
+1. Buat 3 produk/checkout di dashboard Scalev (Bulanan, Tahunan, Seumur Hidup).
+2. Salin URL checkout ke `assets/js/payment.js` → `Payment.CONFIG.checkout`.
+3. Di Scalev, set **redirect setelah pembayaran berhasil** ke:
+   ```
+   https://DOMAIN-ANDA/index.html?aktivasi={PAKET}&order={ORDER_ID}
+   ```
+   `{PAKET}` = `bulanan` | `tahunan` | `seumur-hidup`. Pembeli yang kembali
+   membawa parameter ini akan **otomatis** mendapat akses Premium.
+4. Cadangan: pembeli bisa memasukkan **Order ID** manual lewat menu
+   "Sudah bayar? Aktivasi dengan Order ID" di modal upgrade.
+
+> Selama URL Scalev masih placeholder, tombol paket berjalan dalam **mode demo**
+> (langsung membuka Premium tanpa bayar) untuk keperluan pengujian.
+
+### Catatan keamanan komersial
+Gating Premium ini **sisi-klien**. Untuk verifikasi anti-bypass yang kuat,
+tambahkan webhook Scalev → server Anda untuk memvalidasi Order ID & status
+langganan, serta autentikasi pengguna agar riwayat tersinkron lintas perangkat.
 
 ## 📚 Acuan Klinis
 Naegele's rule · WHO (anemia kehamilan) · Kriteria Rotterdam (PCOS) · Pedoman NICE (preeklampsia) ·
