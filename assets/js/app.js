@@ -96,14 +96,20 @@ const App = {
     let adaTerkunci = false;
     this.LAPISAN.forEach(l => {
       const isi = ayat[l.key];
-      if (!isi) return;
+      if (!isi || (Array.isArray(isi) && !isi.length)) return;
       const terkunci = l.premium && !terbukaPenuh;
       if (terkunci) { adaTerkunci = true; return; }
       const cls = l.key === 'linguistik' ? 'layer linguistik' : 'layer';
+      // Amalan (array) -> daftar poin; lainnya -> paragraf
+      const body = Array.isArray(isi)
+        ? `<ul class="amalan-list">${isi.map(p => `<li>${p}</li>`).join('')}</ul>`
+        : `<p>${isi}</p>`;
+      // Visual besar "kenapa kata ini" menyertai lapisan linguistik
+      const sorotan = (l.key === 'linguistik' && ayat.sorotan) ? this.renderSorotan(ayat.sorotan) : '';
       html += `<div class="${cls}">
         <div class="layer-head"><span class="layer-ico">${l.ico}</span>
           <span class="layer-title">${l.judul}</span></div>
-        <p>${isi}</p>
+        ${body}${sorotan}
       </div>`;
     });
 
@@ -118,6 +124,33 @@ const App = {
 
     html += `<div class="sumber">📚 Rujukan: ${ayat.sumber.join(' · ')}</div></article>`;
     return html;
+  },
+
+  /* ---------- Visual besar: "Kenapa kata/huruf ini, bukan yang lain?" ---------- */
+  renderSorotan(s) {
+    const banding = s.lain
+      ? `<div class="sorotan-banding">
+           <div class="sorotan-kata pilih">
+             <span class="sk-arab">${s.dipilih}</span>
+             <span class="sk-tag">✓ ${s.labelDipilih || 'Yang Allah pilih'}</span>
+           </div>
+           <div class="sorotan-vs">≠</div>
+           <div class="sorotan-kata lain">
+             <span class="sk-arab">${s.lain}</span>
+             <span class="sk-tag">${s.labelLain || 'Alternatif'}</span>
+           </div>
+         </div>`
+      : `<div class="sorotan-banding solo">
+           <div class="sorotan-kata pilih">
+             <span class="sk-arab">${s.dipilih}</span>
+             ${s.labelDipilih ? `<span class="sk-tag">${s.labelDipilih}</span>` : ''}
+           </div>
+         </div>`;
+    return `<div class="sorotan">
+      <div class="sorotan-label">✨ Kenapa kata/huruf ini, bukan yang lain?</div>
+      ${banding}
+      <p class="sorotan-hikmah">${s.hikmah}</p>
+    </div>`;
   },
 
   /* ---------- Ayat Hari Ini ---------- */
