@@ -1,0 +1,211 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard Anggota POGI Lampung</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0b1020;--card:#141a30;--card2:#1b2240;--txt:#e8ecff;--mut:#93a0c8;--line:#2a3358}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:radial-gradient(1200px 600px at 80% -10%,#1b2554 0%,var(--bg) 55%);color:var(--txt);padding:28px 18px 60px;min-height:100vh}
+.wrap{max-width:1180px;margin:0 auto}
+header.top{text-align:center;margin-bottom:26px}
+header.top h1{font-size:30px;letter-spacing:.3px;background:linear-gradient(90deg,#a5b4fc,#67e8f9,#6ee7b7);-webkit-background-clip:text;background-clip:text;color:transparent}
+header.top p{color:var(--mut);margin-top:6px;font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:26px}
+.stat{background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:16px;padding:18px 18px;position:relative;overflow:hidden}
+.stat .num{font-size:34px;font-weight:700}
+.stat .lab{color:var(--mut);font-size:13px;margin-top:4px}
+.stat .spark{position:absolute;right:-10px;top:-10px;font-size:64px;opacity:.08}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+.panel{background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:18px;padding:20px}
+.panel h2{font-size:15px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.panel h2 .ic{font-size:18px}
+.col12{grid-column:span 12}.col8{grid-column:span 8}.col6{grid-column:span 6}.col4{grid-column:span 4}.col5{grid-column:span 5}.col7{grid-column:span 7}
+@media(max-width:880px){.col8,.col6,.col4,.col5,.col7{grid-column:span 12}}
+.donut-wrap{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.donut{border-radius:50%;position:relative;flex:0 0 auto;box-shadow:0 8px 30px rgba(0,0,0,.35)}
+.donut-hole{position:absolute;inset:24%;background:var(--card);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.donut-hole span{font-size:26px;font-weight:700}.donut-hole small{color:var(--mut);font-size:11px}
+ul.legend{list-style:none;display:flex;flex-direction:column;gap:7px;font-size:13.5px}
+ul.legend li{display:flex;align-items:center;gap:8px;color:var(--txt)}
+ul.legend .dot{width:11px;height:11px;border-radius:3px;display:inline-block}
+ul.legend .pct{color:var(--mut)}
+.bars{display:flex;flex-direction:column;gap:10px}
+.bar-row{display:grid;grid-template-columns:155px 1fr 34px;align-items:center;gap:10px;font-size:13px}
+.bar-lab{color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{background:#0d1430;border-radius:8px;height:14px;overflow:hidden;border:1px solid var(--line)}
+.bar-fill{height:100%;border-radius:8px;transition:width .6s}
+.bar-val{text-align:right;color:var(--mut);font-variant-numeric:tabular-nums}
+.mini{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.chip{background:#0d1430;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px}
+.chip b{color:#67e8f9}
+ul.plain{list-style:none;display:flex;flex-direction:column;gap:8px;font-size:13.5px}
+ul.plain li{background:#0d1430;border:1px solid var(--line);border-radius:10px;padding:9px 12px;display:flex;justify-content:space-between}
+ul.plain b{color:#6ee7b7}
+table{width:100%;border-collapse:collapse;font-size:12.7px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+th{color:var(--mut);font-weight:600;position:sticky;top:0;background:var(--card2)}
+td.c,th.c{text-align:center}
+.tablewrap{max-height:430px;overflow:auto;border-radius:12px;border:1px solid var(--line)}
+.warn{border-color:#7c4a12;background:linear-gradient(160deg,#241a0f,#1a1407)}
+.warn h2{color:#fbbf24}
+.warn ul{list-style:none;display:flex;flex-direction:column;gap:9px;font-size:13px}
+.warn li{padding-left:22px;position:relative;color:#f0e6d2}
+.warn li:before{content:"⚠";position:absolute;left:0;color:#fbbf24}
+.warn .tag{color:#fbbf24;font-weight:600}
+footer{text-align:center;color:var(--mut);font-size:12px;margin-top:30px;line-height:1.7}
+</style></head><body><div class="wrap">
+<header class="top">
+  <h1>Dashboard Anggota POGI Lampung</h1>
+  <p>Sumber: Google Form “DATA POGI (Responses)” · Diperbarui 16 June 2026 · 45 anggota unik</p>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="spark">👥</div><div class="num">46</div><div class="lab">Total responden</div></div>
+  <div class="stat"><div class="spark">✔️</div><div class="num">45</div><div class="lab">Anggota unik (dedup)</div></div>
+  <div class="stat"><div class="spark">🎯</div><div class="num">27 <span style="font-size:16px;color:var(--mut)">/45</span></div><div class="lab">Sudah ikut ONE POGI (60%)</div></div>
+  <div class="stat"><div class="spark">🎓</div><div class="num">13</div><div class="lab">Subspesialis</div></div>
+  <div class="stat"><div class="spark">🎂</div><div class="num">43.7</div><div class="lab">Rata-rata usia (thn)</div></div>
+</div>
+
+<div class="grid">
+
+  <div class="panel col7"><h2><span class="ic">🗺️</span>Pemetaan Wilayah Domisili</h2>
+    <div class="bars"><div class="bar-row"><div class="bar-lab">Bandar Lampung</div>
+          <div class="bar-track"><div class="bar-fill" style="width:100.0%;background:#22d3ee"></div></div>
+          <div class="bar-val">30</div></div><div class="bar-row"><div class="bar-lab">Pringsewu</div>
+          <div class="bar-track"><div class="bar-fill" style="width:13.3%;background:#22d3ee"></div></div>
+          <div class="bar-val">4</div></div><div class="bar-row"><div class="bar-lab">Lampung Tengah</div>
+          <div class="bar-track"><div class="bar-fill" style="width:10.0%;background:#22d3ee"></div></div>
+          <div class="bar-val">3</div></div><div class="bar-row"><div class="bar-lab">Metro</div>
+          <div class="bar-track"><div class="bar-fill" style="width:6.7%;background:#22d3ee"></div></div>
+          <div class="bar-val">2</div></div><div class="bar-row"><div class="bar-lab">Lampung Utara</div>
+          <div class="bar-track"><div class="bar-fill" style="width:6.7%;background:#22d3ee"></div></div>
+          <div class="bar-val">2</div></div><div class="bar-row"><div class="bar-lab">Tulang Bawang</div>
+          <div class="bar-track"><div class="bar-fill" style="width:3.3%;background:#22d3ee"></div></div>
+          <div class="bar-val">1</div></div><div class="bar-row"><div class="bar-lab">Lampung Timur</div>
+          <div class="bar-track"><div class="bar-fill" style="width:3.3%;background:#22d3ee"></div></div>
+          <div class="bar-val">1</div></div><div class="bar-row"><div class="bar-lab">Lampung Selatan</div>
+          <div class="bar-track"><div class="bar-fill" style="width:3.3%;background:#22d3ee"></div></div>
+          <div class="bar-val">1</div></div><div class="bar-row"><div class="bar-lab">Way Kanan</div>
+          <div class="bar-track"><div class="bar-fill" style="width:3.3%;background:#22d3ee"></div></div>
+          <div class="bar-val">1</div></div></div>
+  </div>
+
+  <div class="panel col5"><h2><span class="ic">🎯</span>Status ONE POGI 2026</h2>
+    <div class="donut-wrap">
+      <div class="donut" style="width:170px;height:170px;background:conic-gradient(#6366f1 0.0deg 216.0deg,#22d3ee 216.0deg 360.0deg)">
+        <div class="donut-hole"><span>45</span><small>total</small></div>
+      </div>
+      <ul class="legend"><li><span class="dot" style="background:#6366f1"></span>Ya <b>27</b> <span class="pct">(60%)</span></li><li><span class="dot" style="background:#22d3ee"></span>Tidak <b>18</b> <span class="pct">(40%)</span></li></ul></div>
+    <div class="mini"><span class="chip">Sudah ikut <b>27</b></span><span class="chip">Belum ikut <b>18</b></span></div>
+  </div>
+
+  <div class="panel col7"><h2><span class="ic">🎂</span>Distribusi Usia</h2>
+    <div class="bars"><div class="bar-row"><div class="bar-lab">&lt; 35</div>
+          <div class="bar-track"><div class="bar-fill" style="width:7.7%;background:#a78bfa"></div></div>
+          <div class="bar-val">1</div></div><div class="bar-row"><div class="bar-lab">35–39</div>
+          <div class="bar-track"><div class="bar-fill" style="width:92.3%;background:#a78bfa"></div></div>
+          <div class="bar-val">12</div></div><div class="bar-row"><div class="bar-lab">40–44</div>
+          <div class="bar-track"><div class="bar-fill" style="width:100.0%;background:#a78bfa"></div></div>
+          <div class="bar-val">13</div></div><div class="bar-row"><div class="bar-lab">45–49</div>
+          <div class="bar-track"><div class="bar-fill" style="width:76.9%;background:#a78bfa"></div></div>
+          <div class="bar-val">10</div></div><div class="bar-row"><div class="bar-lab">50–54</div>
+          <div class="bar-track"><div class="bar-fill" style="width:38.5%;background:#a78bfa"></div></div>
+          <div class="bar-val">5</div></div><div class="bar-row"><div class="bar-lab">55+</div>
+          <div class="bar-track"><div class="bar-fill" style="width:23.1%;background:#a78bfa"></div></div>
+          <div class="bar-val">3</div></div></div>
+    <div class="mini"><span class="chip">Termuda <b>34</b></span><span class="chip">Tertua <b>58</b></span><span class="chip">Rata-rata <b>43.7</b></span><span class="chip" style="opacity:.7">1 data lahir invalid (klaim 73 th) dikecualikan</span></div>
+  </div>
+
+  <div class="panel col5"><h2><span class="ic">📅</span>Mulai Ikut ONE POGI (sejak)</h2>
+    <div class="bars"><div class="bar-row"><div class="bar-lab">2022</div>
+          <div class="bar-track"><div class="bar-fill" style="width:14.3%;background:#34d399"></div></div>
+          <div class="bar-val">1</div></div><div class="bar-row"><div class="bar-lab">2023</div>
+          <div class="bar-track"><div class="bar-fill" style="width:71.4%;background:#34d399"></div></div>
+          <div class="bar-val">5</div></div><div class="bar-row"><div class="bar-lab">2024</div>
+          <div class="bar-track"><div class="bar-fill" style="width:100.0%;background:#34d399"></div></div>
+          <div class="bar-val">7</div></div><div class="bar-row"><div class="bar-lab">2025</div>
+          <div class="bar-track"><div class="bar-fill" style="width:28.6%;background:#34d399"></div></div>
+          <div class="bar-val">2</div></div><div class="bar-row"><div class="bar-lab">2026</div>
+          <div class="bar-track"><div class="bar-fill" style="width:85.7%;background:#34d399"></div></div>
+          <div class="bar-val">6</div></div><div class="bar-row"><div class="bar-lab">Tahun tidak jelas</div>
+          <div class="bar-track"><div class="bar-fill" style="width:85.7%;background:#34d399"></div></div>
+          <div class="bar-val">6</div></div></div>
+  </div>
+
+  <div class="panel col7"><h2><span class="ic">🏥</span>Tempat Praktek Terbanyak</h2>
+    <div class="bars"><div class="bar-row"><div class="bar-lab">RSUD Abdul Moeloek (RSAM)</div>
+          <div class="bar-track"><div class="bar-fill" style="width:100.0%;background:#f472b6"></div></div>
+          <div class="bar-val">10</div></div><div class="bar-row"><div class="bar-lab">Grup RSIA Mutiara/Restu Bunda</div>
+          <div class="bar-track"><div class="bar-fill" style="width:80.0%;background:#f472b6"></div></div>
+          <div class="bar-val">8</div></div><div class="bar-row"><div class="bar-lab">RS Urip Sumoharjo</div>
+          <div class="bar-track"><div class="bar-fill" style="width:60.0%;background:#f472b6"></div></div>
+          <div class="bar-val">6</div></div><div class="bar-row"><div class="bar-lab">RS Belleza</div>
+          <div class="bar-track"><div class="bar-fill" style="width:50.0%;background:#f472b6"></div></div>
+          <div class="bar-val">5</div></div><div class="bar-row"><div class="bar-lab">RS Hermina</div>
+          <div class="bar-track"><div class="bar-fill" style="width:40.0%;background:#f472b6"></div></div>
+          <div class="bar-val">4</div></div><div class="bar-row"><div class="bar-lab">RS Bintang Amin</div>
+          <div class="bar-track"><div class="bar-fill" style="width:30.0%;background:#f472b6"></div></div>
+          <div class="bar-val">3</div></div><div class="bar-row"><div class="bar-lab">RS Mitra Husada Pringsewu</div>
+          <div class="bar-track"><div class="bar-fill" style="width:30.0%;background:#f472b6"></div></div>
+          <div class="bar-val">3</div></div><div class="bar-row"><div class="bar-lab">RSD A. Dadi Tjokrodipo</div>
+          <div class="bar-track"><div class="bar-fill" style="width:30.0%;background:#f472b6"></div></div>
+          <div class="bar-val">3</div></div><div class="bar-row"><div class="bar-lab">RSUD Menggala</div>
+          <div class="bar-track"><div class="bar-fill" style="width:20.0%;background:#f472b6"></div></div>
+          <div class="bar-val">2</div></div><div class="bar-row"><div class="bar-lab">RS Graha Husada</div>
+          <div class="bar-track"><div class="bar-fill" style="width:20.0%;background:#f472b6"></div></div>
+          <div class="bar-val">2</div></div><div class="bar-row"><div class="bar-lab">RS Airan Raya</div>
+          <div class="bar-track"><div class="bar-fill" style="width:20.0%;background:#f472b6"></div></div>
+          <div class="bar-val">2</div></div><div class="bar-row"><div class="bar-lab">RS Surya Asih</div>
+          <div class="bar-track"><div class="bar-fill" style="width:20.0%;background:#f472b6"></div></div>
+          <div class="bar-val">2</div></div></div>
+    <p style="color:var(--mut);font-size:11.5px;margin-top:10px">Jumlah dokter yang menyebut fasilitas tsb di salah satu SIP/instansi (estimasi dari teks bebas).</p>
+  </div>
+
+  <div class="panel col5"><h2><span class="ic">🧑‍⚕️</span>Status Kepegawaian</h2>
+    <div class="donut-wrap">
+      <div class="donut" style="width:170px;height:170px;background:conic-gradient(#6366f1 0.0deg 168.0deg,#22d3ee 168.0deg 288.0deg,#34d399 288.0deg 360.0deg)">
+        <div class="donut-hole"><span>45</span><small>total</small></div>
+      </div>
+      <ul class="legend"><li><span class="dot" style="background:#6366f1"></span>SWASTA <b>21</b> <span class="pct">(47%)</span></li><li><span class="dot" style="background:#22d3ee"></span>PNS <b>15</b> <span class="pct">(33%)</span></li><li><span class="dot" style="background:#34d399"></span>PNS dan SWASTA <b>9</b> <span class="pct">(20%)</span></li></ul></div>
+  </div>
+
+  <div class="panel col5"><h2><span class="ic">🎓</span>Jenjang Pendidikan</h2>
+    <div class="bars"><div class="bar-row"><div class="bar-lab">Subspesialis</div>
+          <div class="bar-track"><div class="bar-fill" style="width:41.9%;background:#6366f1"></div></div>
+          <div class="bar-val">13</div></div><div class="bar-row"><div class="bar-lab">Spesialis Obgyn</div>
+          <div class="bar-track"><div class="bar-fill" style="width:100.0%;background:#6366f1"></div></div>
+          <div class="bar-val">31</div></div><div class="bar-row"><div class="bar-lab">S1/profesi dokter</div>
+          <div class="bar-track"><div class="bar-fill" style="width:3.2%;background:#6366f1"></div></div>
+          <div class="bar-val">1</div></div></div>
+  </div>
+
+  <div class="panel col7"><h2><span class="ic">❌</span>Alasan Belum Ikut ONE POGI (18 orang)</h2>
+    <ul class="plain"><li>Belum/belum sempat mendaftar <b>9</b></li><li>Biaya mahal / akumulasi <b>4</b></li><li>Kesulitan / ribet proses <b>2</b></li><li>Sudah punya asuransi lain <b>2</b></li><li>Faktor usia <b>1</b></li></ul>
+  </div>
+
+  <div class="panel col4"><h2><span class="ic">🕌</span>Agama</h2><div class="donut-wrap">
+      <div class="donut" style="width:150px;height:150px;background:conic-gradient(#6366f1 0.0deg 336.0deg,#22d3ee 336.0deg 352.0deg,#34d399 352.0deg 360.0deg)">
+        <div class="donut-hole"><span>45</span><small>total</small></div>
+      </div>
+      <ul class="legend"><li><span class="dot" style="background:#6366f1"></span>Islam <b>42</b> <span class="pct">(93%)</span></li><li><span class="dot" style="background:#22d3ee"></span>Kristen <b>2</b> <span class="pct">(4%)</span></li><li><span class="dot" style="background:#34d399"></span>Hindu <b>1</b> <span class="pct">(2%)</span></li></ul></div></div>
+  <div class="panel col4"><h2><span class="ic">💍</span>Status Pernikahan</h2><div class="donut-wrap">
+      <div class="donut" style="width:150px;height:150px;background:conic-gradient(#6366f1 0.0deg 336.0deg,#22d3ee 336.0deg 360.0deg)">
+        <div class="donut-hole"><span>45</span><small>total</small></div>
+      </div>
+      <ul class="legend"><li><span class="dot" style="background:#6366f1"></span>Menikah <b>42</b> <span class="pct">(93%)</span></li><li><span class="dot" style="background:#22d3ee"></span>Belum menikah <b>3</b> <span class="pct">(7%)</span></li></ul></div></div>
+  <div class="panel col4"><h2><span class="ic">🛡️</span>Asuransi Profesi Lain</h2><div class="donut-wrap">
+      <div class="donut" style="width:150px;height:150px;background:conic-gradient(#6366f1 0.0deg 184.0deg,#22d3ee 184.0deg 272.0deg,#34d399 272.0deg 328.0deg,#fbbf24 328.0deg 360.0deg)">
+        <div class="donut-hole"><span>45</span><small>total</small></div>
+      </div>
+      <ul class="legend"><li><span class="dot" style="background:#6366f1"></span>Tidak / tidak ada <b>23</b> <span class="pct">(51%)</span></li><li><span class="dot" style="background:#22d3ee"></span>Bumida <b>11</b> <span class="pct">(24%)</span></li><li><span class="dot" style="background:#34d399"></span>Allianz <b>7</b> <span class="pct">(16%)</span></li><li><span class="dot" style="background:#fbbf24"></span>Ya (tak disebut) <b>4</b> <span class="pct">(9%)</span></li></ul></div></div>
+
+  
+
+  <div class="panel col12 warn"><h2><span class="ic">⚠️</span>Ringkasan Kualitas Data</h2><ul><li><span class="tag">Duplikat dibuang:</span> 1 entri (No HP sama, datanya bergeser).</li><li><span class="tag">Kolom bergeser:</span> 1 entri (email/alamat tertukar).</li><li><span class="tag">Tanggal lahir tidak valid:</span> 1 entri (dikecualikan dari grafik usia).</li><li><span class="tag">Tahun lulus janggal:</span> 3 entri (kemungkinan typo).</li><li><span class="tag">Instansi kosong:</span> 2 entri.</li><li><span class="tag">Jenjang hanya S1 (perlu konfirmasi):</span> 1 entri.</li><li><span class="tag">Catatan:</span> 2 pasangan suami-istri sama-sama terdaftar (valid).</li></ul><p style="color:var(--mut);font-size:11.5px;margin-top:10px">Detail per-nama disembunyikan demi privasi.</p></div>
+
+</div>
+<footer>
+  Versi publik (GitHub Pages) — hanya menampilkan data agregat; tanpa nama, No HP, email, atau alamat. Snapshot per 16 June 2026.<br>
+  Dibuat otomatis dari aturan rekap DATA POGI.
+</footer>
+</div></body></html>
