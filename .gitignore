@@ -1,0 +1,5 @@
+# Berisi data pribadi anggota POGI (nama, tanggal lahir) — rahasia, jangan di-push.
+dashboard-pogi.html
+build_dashboard.py
+responses.csv
+*.xlsx
