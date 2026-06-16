@@ -58,6 +58,17 @@ atau wilayah agar dashboard bisa difilter interaktif.
   atau buat calculated field CASE-WHEN manual.
 - Tidak ada panel "kualitas data".
 
-> Kalau nanti butuh angka yang sudah bersih (ter-dedup, usia & wilayah matang) tapi tetap
-> tampil di Looker, minta saja versi **Hybrid** (Apps Script menulis tab `Data Bersih`,
-> lalu Looker connect ke tab itu).
+## E. (DISARANKAN) Mode Hybrid — data sudah bersih untuk Looker
+Agar angka di Looker sudah **ter-dedup** dan punya kolom **Usia / Kelompok Usia / Wilayah /
+Jenjang** matang, pakai skrip **`Hybrid_DataBersih.gs`** (ada di folder ini):
+
+1. Buka **script.google.com** → New project → paste isi `Hybrid_DataBersih.gs`.
+2. Menu **Run** → jalankan `buildDataBersih` sekali (authorize saat diminta).
+   → muncul tab baru **`Data Bersih`** di spreadsheet.
+3. Jalankan `installCleanTriggers` sekali → tab auto-update tiap ada respons Form baru
+   (plus cadangan tiap jam).
+4. Di Looker Studio (Bagian A), saat pilih worksheet **pilih tab `Data Bersih`** (bukan
+   Form Responses). Chart di Bagian B langsung pakai kolom rapi: `Usia`, `Kelompok Usia`,
+   `Wilayah Domisili`, `Jenjang`, `Asuransi`, dll — tanpa perlu calculated field.
+
+Tab `Data Bersih` sengaja **tidak memuat No HP / email / alamat rumah** (privasi).
