@@ -259,9 +259,9 @@ footer{text-align:center;color:var(--muted);font-size:.76rem;padding:24px 16px 4
 /* ====== DATA AGREGAT (hasil rekap; tanpa PII) ====== */
 const DATA = {
   updated: "17 Juni 2026",
-  totalMasuk: 73,
+  totalMasuk: 72,
   totalUnik: 72,
-  duplikat: 1,
+  duplikat: 0,
   onepogi: { ya: 41, tidak: 31 },
 
   kepegawaian: [
@@ -336,8 +336,6 @@ const DATA = {
     { t: "17 dokter praktik di lebih dari 1 kabupaten/kota", c: "" }
   ],
   quality: [
-    { type: "dup", tag: "Duplikat", h: "1 duplikat baru (perlu dibuang)",
-      b: "dr. Mohamad Indrawan Yachya mengisi 2× (6/16 19:53:07 & 6/17 9:42:08). Saran: buang entri lama (6/16 19:53:07), simpan yang terbaru." },
     { type: "shift", tag: "Kolom bergeser", h: "1 baris dengan kolom tergeser",
       b: "dr. Dino Rinaldy: email masuk ke kolom Alamat & kolom Email Aktif kosong. Perlu digeser balik manual." },
     { type: "shift", tag: "Field kosong", h: "Beberapa kolom penting kosong",
