@@ -67,6 +67,8 @@ function buildAggregate() {
   var asuransi = {};
   var sebaran = {};
   var unclassified = 0;
+  var mk = { 1: 0, 2: 0, 3: 0 };   // jumlah dokter per banyaknya kab/kota praktik
+  var mkLintas = 0;                // dokter praktik di >1 kab/kota
 
   rows.forEach(function (row) {
     // Kepegawaian
@@ -109,6 +111,16 @@ function buildAggregate() {
     if (!reg) reg = geoRegion_(String(row[col.domisili] || ''));
     if (reg) sebaran[reg] = (sebaran[reg] || 0) + 1;
     else unclassified++;
+
+    // Praktik lintas kabupaten: hitung kab/kota berbeda dari SIP 1-3
+    var set = {};
+    [row[col.sip1], row[col.sip2], row[col.sip3]].forEach(function (sip) {
+      var r = geoRegion_(String(sip || ''));
+      if (r) set[r] = 1;
+    });
+    var nKab = Math.max(Object.keys(set).length, 1); // 0 terbaca dianggap 1
+    if (nKab >= 3) mk[3]++; else mk[nKab]++;
+    if (Object.keys(set).length >= 2) mkLintas++;
   });
 
   // 3) Susun output sesuai bentuk yang dipakai dashboard
@@ -143,7 +155,13 @@ function buildAggregate() {
     ],
     asuransi: toSortedArr_(asuransi).slice(0, 6),
     asuransiMax: totalUnik,
-    sebaran: Object.keys(sebaran).map(function (k) { return { n: k, c: sebaran[k] }; })
+    sebaran: Object.keys(sebaran).map(function (k) { return { n: k, c: sebaran[k] }; }),
+    multiKab: [
+      { label: 'Praktik di 1 kab/kota', value: mk[1], cls: '' },
+      { label: 'Praktik di 2 kab/kota', value: mk[2], cls: 'teal' },
+      { label: 'Praktik di 3 kab/kota', value: mk[3], cls: 'info' }
+    ],
+    multiKabLintas: mkLintas
   };
   if (unclassified) out.sebaranTakTerklasifikasi = unclassified;
   return out;
@@ -195,19 +213,19 @@ function asuransiProvider_(v) {
 var GEO_RULES = [
   ['Mesuji',              /mesuji|brabasan|simpang pematang|wiralaga|\brbc\b/],
   ['Tulang Bawang Barat', /tulang bawang barat|tubaba|tumijajar|panaragan/],
-  ['Tulang Bawang',       /tulang bawang|menggala|banjar agung|unit 2|rawajitu/],
+  ['Tulang Bawang',       /tulang bawang|menggala|\bmgl\b|banjar agung|unit 2|rawajitu/],
   ['Way Kanan',           /way kanan|blambangan umpu|baradatu|banjit|\bzapa\b|zainal abidin pagar ?alam|haji kamino/],
-  ['Lampung Utara',       /lampung utara|kotabumi|ryacudu|prokimal|abung/],
+  ['Lampung Utara',       /lampung utara|kotabumi|ryacudu|prokimal|abung|medika insani lampung utara|handayani/],
   ['Lampung Barat',       /lampung barat|\bliwa\b|alimuddin umar|balik bukit/],
   ['Pesisir Barat',       /pesisir barat|\bkrui\b|pugung tampak/],
   ['Tanggamus',           /tanggamus|kota agung|batin mangunang|gisting|wonosobo|talang padang/],
-  ['Pringsewu',           /pringsewu|gadingrejo|gading rejo|wisma ?rini|wismarini|mitra husada pringsewu/],
-  ['Pesawaran',           /pesawaran|gedong tataan|gedung tataan|kedondong|negeri katon/],
+  ['Pringsewu',           /pringsewu|gadingrejo|gading rejo|wisma ?rini|wismarini|mitra husada/],
+  ['Pesawaran',           /pesawaran|gedong tataan|gedung tataan|kedondong|negeri katon|\bgmc\b/],
   ['Lampung Timur',       /lampung timur|lamtim|sukadana|way jepara|mataram baru|sribhawono|pekalongan|ahmad hanafiah|mawar lamtim/],
-  ['Lampung Selatan',     /lampung selatan|lamsel|kalianda|\bnatar\b|bob bazar|jati agung|way hui|airan raya|sidomulyo|kalirejo lampung selatan|bandar negara husada/],
-  ['Lampung Tengah',      /lampung tengah|lamteng|bandar jaya|gunung sugih|terbanggi|seputih|demang sepulau|yukum|punggur|bandar surabaya|\bkalirejo\b|mitra mulia husada|puri adhya|puti bungsu|kartini kalirejo/],
-  ['Kota Metro',          /\bmetro\b|mardi waluyo|muhammadiyah metro|muhamadiyah metro|ahmad yani metro|a\.? yani metro|imopuro|amc kota metro|amc metro/],
-  ['Kota Bandar Lampung', /bandar ?lampung|tanjung ?karang|tanjungkarang|teluk ?betung|telukbetung|kedaton|rajabasa|sukarame|kemiling|labuhan ratu|way halim|enggal|pahoman|gunung terang|tirtayasa|abdul moeloek|moeloek|\brsam\b|urip sumohar|graha husada|bumi waras|imanuel|advent|bintang amin|belleza|budi medika|tjokrodipo|restu bunda|hermina|bhayangkara|\bdkt\b|puri betik hati|surya asih|bunda asyifa|asyifa by aulia/]
+  ['Lampung Selatan',     /lampung selatan|lamsel|kalianda|\bnatar\b|bob bazar|jati agung|way hui|airan raya|sidomulyo|bandar negara husada/],
+  ['Lampung Tengah',      /lampung tengah|lamteng|bandar jaya|gunung sugih|terbanggi|seputih|demang sepulau|yukum|punggur|bandar surabaya|\bkalirejo\b|mitra mulia|puri adhya|puti bungsu|kartini kalirejo|artha bunda/],
+  ['Kota Metro',          /\bmetro\b|mardi waluyo|muhammadiyah metro|muhamadiyah metro|ahmad yani metro|a\.? yani metro|imopuro|amc kota metro|amc metro|asih metro|azizah metro/],
+  ['Kota Bandar Lampung', /bandar ?lampung|tanjung ?karang|tanjungkarang|teluk ?betung|telukbetung|kedaton|rajabasa|sukarame|kemiling|labuhan ratu|way halim|enggal|pahoman|gunung terang|tirtayasa|abdul moeloek|moeloek|\brsam\b|urip sumohar|graha husada|bumi waras|imanuel|advent|bintang amin|belleza|budi medika|tjokrodipo|restu bunda|hermina|bhayangkara|\bdkt\b|puri betik hati|surya asih|bunda asyifa|asyifa by aulia|tk iv|santa anna|barokah medika/]
 ];
 
 function geoRegion_(text) {
@@ -244,6 +262,8 @@ function indexByHeader_(header) {
     jenjang: find(/jenjang/i),
     subUniv: find(/jenis subspesialis/i),
     sip1: find(/sip 1/i),
+    sip2: find(/sip 2/i),
+    sip3: find(/sip 3/i),
     pogi: find(/sudah mengikuti one pogi/i),
     asuransi: find(/asuransi profesi/i),
     nikah: find(/status pernikahan/i)
