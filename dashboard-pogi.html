@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Dashboard rekap DATA POGI wilayah Lampung — ringkasan agregat anggota Sp.OG (tanpa data pribadi).">
+<meta name="theme-color" content="#e7689a">
+<meta name="robots" content="noindex, nofollow">
+<title>Dashboard DATA POGI — Lampung</title>
+<style>
+:root{
+  --pink:#e7689a; --pink-soft:#fbe4ee; --plum:#6d3b6b; --teal:#2b9d9b; --teal-soft:#d9f2f1;
+  --ink:#2c2434; --muted:#8a7f93; --bg:#fdf7fb; --card:#fff; --line:#f0e3ec;
+  --ok:#2f9e6b; --ok-bg:#e3f6ec; --warn:#c98a16; --warn-bg:#fbf1da;
+  --bad:#d2485a; --bad-bg:#fbe5e8; --info:#3a78c2; --info-bg:#e6f0fb;
+  --radius:16px; --shadow:0 8px 30px rgba(109,59,107,.10);
+  --font:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);color:var(--ink);background:linear-gradient(180deg,#fdf7fb 0%,#f7f0fa 100%);line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh}
+
+.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 20px;background:rgba(255,255,255,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.2rem;color:var(--plum)}
+.brand .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--pink),var(--plum));display:grid;place-items:center;color:#fff;font-size:1rem}
+.brand small{display:block;font-weight:500;font-size:.62rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+.updated{font-size:.72rem;color:var(--muted)}
+
+.hero{text-align:center;padding:34px 20px 8px;max-width:760px;margin:0 auto}
+.hero h1{font-size:1.7rem;color:var(--plum);line-height:1.25}
+.hero h1 span{color:var(--pink)}
+.hero p{color:var(--muted);margin-top:8px;font-size:.95rem}
+
+.wrap{max-width:1080px;margin:0 auto;padding:18px 18px 60px}
+
+/* KPI cards */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:8px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 16px 14px}
+.kpi .n{font-size:2rem;font-weight:800;color:var(--plum);line-height:1}
+.kpi .l{font-size:.78rem;color:var(--muted);margin-top:6px;font-weight:600}
+.kpi.accent .n{color:var(--pink)}
+.kpi.teal .n{color:var(--teal)}
+.kpi.bad .n{color:var(--bad)}
+
+.section-title{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:800;margin:28px 4px 12px}
+
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+.card h3{font-size:1rem;color:var(--plum);display:flex;align-items:center;gap:8px}
+.card .ic{font-size:1.05rem}
+.card .sub{font-size:.78rem;color:var(--muted);margin:3px 0 14px}
+
+/* horizontal bars */
+.bars{display:flex;flex-direction:column;gap:11px}
+.bar-row{display:grid;grid-template-columns:1fr;gap:5px}
+.bar-top{display:flex;justify-content:space-between;font-size:.85rem;font-weight:600}
+.bar-top .v{color:var(--plum);font-weight:800}
+.bar-top .pct{color:var(--muted);font-weight:600;font-size:.76rem;margin-left:6px}
+.bar-track{height:11px;background:var(--pink-soft);border-radius:999px;overflow:hidden}
+.bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--pink),var(--plum));width:0;transition:width .9s cubic-bezier(.4,0,.2,1)}
+.bar-fill.teal{background:linear-gradient(90deg,var(--teal),#1f7d7b)}
+.bar-fill.warn{background:linear-gradient(90deg,#f0b53d,var(--warn))}
+.bar-fill.info{background:linear-gradient(90deg,#5b9bd9,var(--info))}
+
+/* donut */
+.donut-wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.donut{--p:0;width:150px;height:150px;border-radius:50%;flex-shrink:0;background:conic-gradient(var(--teal) 0,var(--teal) calc(var(--p)*1%),var(--pink-soft) 0);display:grid;place-items:center;position:relative}
+.donut::after{content:"";position:absolute;width:96px;height:96px;border-radius:50%;background:var(--card)}
+.donut .mid{position:relative;z-index:1;text-align:center}
+.donut .mid b{display:block;font-size:1.9rem;color:var(--teal);line-height:1}
+.donut .mid small{font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.legend{display:flex;flex-direction:column;gap:8px;font-size:.86rem}
+.legend .li{display:flex;align-items:center;gap:8px}
+.legend .dot{width:12px;height:12px;border-radius:4px}
+.legend .li b{margin-left:auto;color:var(--plum)}
+
+/* reasons list */
+.reasons{display:flex;flex-direction:column;gap:10px}
+.reason{display:flex;gap:11px;align-items:flex-start}
+.reason .rank{flex-shrink:0;width:24px;height:24px;border-radius:8px;background:var(--pink-soft);color:var(--plum);font-weight:800;font-size:.8rem;display:grid;place-items:center}
+.reason .rt{font-size:.86rem}
+.reason .rt b{color:var(--plum)}
+.reason .rt .cnt{color:var(--muted);font-size:.76rem}
+
+/* quality */
+.q-card{border-left:4px solid var(--warn)}
+.q-list{display:flex;flex-direction:column;gap:12px;margin-top:4px}
+.q-item{background:var(--warn-bg);border-radius:12px;padding:12px 14px}
+.q-item.dup{background:var(--info-bg)}
+.q-item.err{background:var(--bad-bg)}
+.q-item .qh{font-weight:800;font-size:.85rem;color:var(--ink);display:flex;align-items:center;gap:7px}
+.q-item .qb{font-size:.81rem;color:var(--muted);margin-top:4px}
+.tag{display:inline-block;font-size:.62rem;font-weight:800;letter-spacing:.06em;padding:2px 7px;border-radius:999px;text-transform:uppercase}
+.tag.dup{background:#d6e6fa;color:var(--info)}
+.tag.shift{background:#fbf1da;color:var(--warn)}
+.tag.err{background:#fbe5e8;color:var(--bad)}
+
+.note{font-size:.78rem;color:var(--muted);background:var(--pink-soft);border-radius:12px;padding:12px 14px;margin-top:22px;display:flex;gap:9px;align-items:flex-start}
+footer{text-align:center;color:var(--muted);font-size:.76rem;padding:24px 16px 40px}
+
+@media(max-width:760px){
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .grid{grid-template-columns:1fr}
+  .hero h1{font-size:1.4rem}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">📊</div>
+    <div>DATA POGI<small>Dashboard Rekap · Lampung</small></div>
+  </div>
+  <div class="updated" id="updated">—</div>
+</header>
+
+<section class="hero">
+  <h1>Rekap Anggota <span>POGI Lampung</span></h1>
+  <p>Ringkasan agregat registrasi dokter Sp.OG dari Google Form "DATA POGI". Halaman ini hanya menampilkan angka ringkasan — tidak memuat nama, nomor HP, email, atau alamat.</p>
+</section>
+
+<main class="wrap">
+
+  <!-- KPI -->
+  <div class="kpis">
+    <div class="kpi"><div class="n" id="kpi-masuk">0</div><div class="l">Total responden masuk</div></div>
+    <div class="kpi accent"><div class="n" id="kpi-unik">0</div><div class="l">Data unik (setelah dedup)</div></div>
+    <div class="kpi teal"><div class="n" id="kpi-ya">0</div><div class="l">Sudah ikut ONE POGI 2026</div></div>
+    <div class="kpi bad"><div class="n" id="kpi-dup">0</div><div class="l">Entri duplikat dibuang</div></div>
+  </div>
+
+  <div class="section-title">Profil Anggota</div>
+  <div class="grid">
+
+    <div class="card">
+      <h3><span class="ic">💼</span> Status Kepegawaian</h3>
+      <p class="sub">Dari <b id="t-kepeg">64</b> data unik</p>
+      <div class="bars" id="bars-kepeg"></div>
+    </div>
+
+    <div class="card">
+      <h3><span class="ic">🎓</span> Jenjang Pendidikan</h3>
+      <p class="sub">Tingkat tertinggi per orang</p>
+      <div class="bars" id="bars-jenjang"></div>
+    </div>
+
+    <div class="card">
+      <h3><span class="ic">🕌</span> Agama</h3>
+      <p class="sub">Variasi penulisan digabung</p>
+      <div class="bars" id="bars-agama"></div>
+    </div>
+
+    <div class="card">
+      <h3><span class="ic">💍</span> Status Pernikahan</h3>
+      <p class="sub">"Nikah/Menikah" digabung; "Single/Belum" digabung</p>
+      <div class="bars" id="bars-nikah"></div>
+    </div>
+
+  </div>
+
+  <div class="section-title">Keikutsertaan ONE POGI 2026</div>
+  <div class="grid">
+
+    <div class="card">
+      <h3><span class="ic">✅</span> Sudah Ikut ONE POGI?</h3>
+      <p class="sub">Proporsi dari data unik</p>
+      <div class="donut-wrap">
+        <div class="donut" id="donut-onepogi"><div class="mid"><b id="donut-pct">0%</b><small>Sudah ikut</small></div></div>
+        <div class="legend" id="legend-onepogi"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="ic">❓</span> Alasan Belum Ikut</h3>
+      <p class="sub">Rangkuman dari yang menjawab "Tidak"</p>
+      <div class="reasons" id="reasons"></div>
+    </div>
+
+  </div>
+
+  <div class="section-title">Asuransi Profesi Lain</div>
+  <div class="grid">
+    <div class="card">
+      <h3><span class="ic">🛡️</span> Penyedia yang Disebut</h3>
+      <p class="sub">Nama paling sering muncul (responden boleh tidak menyebut)</p>
+      <div class="bars" id="bars-asuransi"></div>
+    </div>
+    <div class="card">
+      <h3><span class="ic">📌</span> Catatan</h3>
+      <p class="sub">Ringkasan cepat</p>
+      <div class="reasons" id="notes"></div>
+    </div>
+  </div>
+
+  <div class="section-title">Kualitas Data — Perlu Dicek</div>
+  <div class="card q-card">
+    <h3><span class="ic">⚠️</span> Temuan yang perlu perbaikan manual</h3>
+    <p class="sub">Ditandai, <b>tidak</b> diubah otomatis. Angka rekap di atas sudah memakai data yang sudah didedup.</p>
+    <div class="q-list" id="quality"></div>
+  </div>
+
+  <div class="note">
+    <span>🔒</span>
+    <span><b>Privasi:</b> Dashboard ini sengaja hanya berisi data agregat. Informasi pribadi (No HP, email, alamat, nama) tidak disertakan agar aman dipublikasikan. Untuk kebutuhan administratif yang butuh detail per orang, olah berkas sumber secara lokal/terbatas.</span>
+  </div>
+
+</main>
+
+<footer>
+  Dashboard Rekap DATA POGI · Wilayah Lampung · Bagian dari proyek Bidanara<br>
+  Sumber: Google Form "DATA POGI (Responses)". Angka apa adanya sesuai isian responden.
+</footer>
+
+<script>
+/* ====== DATA AGREGAT (hasil rekap; tanpa PII) ====== */
+const DATA = {
+  updated: "17 Juni 2026",
+  totalMasuk: 68,
+  totalUnik: 64,
+  duplikat: 4,
+  onepogi: { ya: 39, tidak: 25 },
+
+  kepegawaian: [
+    { label: "SWASTA", value: 30, cls: "" },
+    { label: "PNS", value: 23, cls: "teal" },
+    { label: "PNS dan SWASTA", value: 11, cls: "info" }
+  ],
+  jenjang: [
+    { label: "Spesialis Obgyn", value: 45, cls: "" },
+    { label: "Subspesialis", value: 18, cls: "teal" },
+    { label: "S1 / profesi dokter", value: 0, cls: "info" },
+    { label: "Tidak terisi", value: 1, cls: "warn" }
+  ],
+  agama: [
+    { label: "Islam", value: 58, cls: "" },
+    { label: "Kristen / Protestan", value: 4, cls: "teal" },
+    { label: "Hindu", value: 2, cls: "info" }
+  ],
+  nikah: [
+    { label: "Menikah", value: 60, cls: "" },
+    { label: "Belum menikah", value: 3, cls: "teal" },
+    { label: "Tidak terisi", value: 1, cls: "warn" }
+  ],
+  asuransi: [
+    { label: "Bumida", value: 15, cls: "" },
+    { label: "Allianz", value: 8, cls: "teal" }
+  ],
+  asuransiMax: 64,
+  reasons: [
+    { t: "Belum sempat / belum mendaftar", c: "≈8 orang" },
+    { t: "Belum paham cara & mekanisme pendaftaran", c: "≈5 orang" },
+    { t: "Biaya dirasa mahal / sudah punya asuransi lain", c: "≈5 orang" },
+    { t: "Kesulitan teknis saat mendaftar", c: "2 orang" },
+    { t: "Lainnya: faktor usia & isian \"-\"/kosong", c: "≈5 orang" }
+  ],
+  notes: [
+    { t: "Bumida penyedia asuransi profesi paling banyak disebut", c: "diikuti Allianz" },
+    { t: "Mayoritas berstatus SWASTA & beragama Islam", c: "" },
+    { t: "61% responden sudah mengikuti ONE POGI 2026", c: "39 dari 64" }
+  ],
+  quality: [
+    { type: "dup", tag: "Duplikat", h: "4 pasang entri ganda (4 entri dibuang)",
+      b: "Abi Ryamafi Bazar, Obi Candra Kapisa, Dika Oriputra, dan Gita Puspita masing-masing terisi 2×. Entri lebih lama / kurang lengkap disarankan dibuang." },
+    { type: "shift", tag: "Kolom bergeser", h: "2 baris dengan kolom tergeser",
+      b: "Satu entri: email masuk ke kolom Alamat & kolom Email kosong. Satu lagi: kolom Nama berisi email dan Email berisi \"iya\". Perlu digeser balik manual." },
+    { type: "err", tag: "Tanggal janggal", h: "1 tanggal lahir tidak masuk akal",
+      b: "Tahun lahir tertulis 1054 — kemungkinan typo dari 1954 (sesuai keterangan usia ±73 tahun)." },
+    { type: "shift", tag: "Field kosong", h: "Beberapa kolom penting kosong",
+      b: "Instansi/Tempat Tugas kosong (1), Email Aktif kosong (1), serta jenjang pendidikan & status pernikahan kosong (masing-masing 1)." }
+  ]
+};
+
+/* ====== RENDER ====== */
+function pct(v, total){ return total ? Math.round(v/total*100) : 0; }
+
+function renderBars(elId, items, total){
+  const max = Math.max(...items.map(i=>i.value), 1);
+  const el = document.getElementById(elId);
+  el.innerHTML = items.map(i=>{
+    const w = Math.round(i.value/max*100);
+    return `<div class="bar-row">
+      <div class="bar-top"><span>${i.label}</span>
+        <span class="v">${i.value}<span class="pct">${pct(i.value,total)}%</span></span></div>
+      <div class="bar-track"><div class="bar-fill ${i.cls||''}" data-w="${w}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderReasons(elId, items){
+  document.getElementById(elId).innerHTML = items.map((r,idx)=>`
+    <div class="reason"><div class="rank">${idx+1}</div>
+      <div class="rt"><b>${r.t}</b> <span class="cnt">${r.c?'· '+r.c:''}</span></div></div>`).join('');
+}
+
+function renderQuality(){
+  document.getElementById('quality').innerHTML = DATA.quality.map(q=>`
+    <div class="q-item ${q.type}">
+      <div class="qh"><span class="tag ${q.type}">${q.tag}</span> ${q.h}</div>
+      <div class="qb">${q.b}</div>
+    </div>`).join('');
+}
+
+function renderDonut(){
+  const ya = DATA.onepogi.ya, tot = DATA.onepogi.ya + DATA.onepogi.tidak;
+  const p = pct(ya, tot);
+  document.getElementById('donut-pct').textContent = p + '%';
+  const d = document.getElementById('donut-onepogi');
+  document.getElementById('legend-onepogi').innerHTML = `
+    <div class="li"><span class="dot" style="background:var(--teal)"></span> Sudah ikut <b>${ya}</b></div>
+    <div class="li"><span class="dot" style="background:var(--pink-soft)"></span> Belum ikut <b>${DATA.onepogi.tidak}</b></div>
+    <div class="li" style="color:var(--muted);font-size:.76rem">Total ${tot} data unik</div>`;
+  setTimeout(()=>d.style.setProperty('--p', p), 200);
+}
+
+document.getElementById('updated').textContent = 'Diperbarui: ' + DATA.updated;
+document.getElementById('kpi-masuk').textContent = DATA.totalMasuk;
+document.getElementById('kpi-unik').textContent = DATA.totalUnik;
+document.getElementById('kpi-ya').textContent = DATA.onepogi.ya;
+document.getElementById('kpi-dup').textContent = DATA.duplikat;
+document.getElementById('t-kepeg').textContent = DATA.totalUnik;
+
+renderBars('bars-kepeg', DATA.kepegawaian, DATA.totalUnik);
+renderBars('bars-jenjang', DATA.jenjang, DATA.totalUnik);
+renderBars('bars-agama', DATA.agama, DATA.totalUnik);
+renderBars('bars-nikah', DATA.nikah, DATA.totalUnik);
+renderBars('bars-asuransi', DATA.asuransi, DATA.asuransiMax);
+renderReasons('reasons', DATA.reasons);
+renderReasons('notes', DATA.notes);
+renderQuality();
+renderDonut();
+
+/* animate bars in */
+setTimeout(()=>document.querySelectorAll('.bar-fill').forEach(f=>{f.style.width=f.dataset.w+'%';}), 150);
+</script>
+</body>
+</html>
