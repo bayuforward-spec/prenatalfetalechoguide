@@ -121,7 +121,7 @@ footer{text-align:center;color:var(--muted);font-size:.76rem;padding:24px 16px 4
     <div class="logo">📊</div>
     <div>DATA POGI<small>Dashboard Rekap · Lampung</small></div>
   </div>
-  <div class="updated" id="updated">—</div>
+  <div class="updated"><span id="source" style="font-weight:700">● Snapshot</span> · <span id="updated">—</span></div>
 </header>
 
 <section class="hero">
@@ -285,23 +285,23 @@ const DATA = {
     { label: "AXA Mandiri", value: 1, cls: "info" }
   ],
   asuransiMax: 66,
-  // Sebaran tempat praktik utama per kabupaten/kota (col/row = posisi kartogram, geografis perkiraan)
+  // Sebaran tempat praktik utama per kabupaten/kota (posisi kartogram diatur via GEO di bawah)
   sebaran: [
-    { n: "Way Kanan",            c: 3,  col: 2, row: 1 },
-    { n: "Mesuji",               c: 1,  col: 5, row: 1 },
-    { n: "Lampung Utara",        c: 2,  col: 3, row: 2 },
-    { n: "Tulang Bawang Barat",  c: 2,  col: 4, row: 2 },
-    { n: "Tulang Bawang",        c: 3,  col: 5, row: 2 },
-    { n: "Lampung Barat",        c: 1,  col: 1, row: 3 },
-    { n: "Lampung Tengah",       c: 7,  col: 3, row: 3 },
-    { n: "Kota Metro",           c: 6,  col: 4, row: 3 },
-    { n: "Lampung Timur",        c: 2,  col: 5, row: 3 },
-    { n: "Pesisir Barat",        c: 0,  col: 1, row: 4 },
-    { n: "Tanggamus",            c: 1,  col: 2, row: 4 },
-    { n: "Pringsewu",            c: 5,  col: 3, row: 4 },
-    { n: "Pesawaran",            c: 0,  col: 3, row: 5 },
-    { n: "Kota Bandar Lampung",  c: 30, col: 4, row: 5 },
-    { n: "Lampung Selatan",      c: 3,  col: 4, row: 6 }
+    { n: "Way Kanan",            c: 3  },
+    { n: "Mesuji",               c: 1  },
+    { n: "Lampung Utara",        c: 2  },
+    { n: "Tulang Bawang Barat",  c: 2  },
+    { n: "Tulang Bawang",        c: 3  },
+    { n: "Lampung Barat",        c: 1  },
+    { n: "Lampung Tengah",       c: 7  },
+    { n: "Kota Metro",           c: 6  },
+    { n: "Lampung Timur",        c: 2  },
+    { n: "Pesisir Barat",        c: 0  },
+    { n: "Tanggamus",            c: 1  },
+    { n: "Pringsewu",            c: 5  },
+    { n: "Pesawaran",            c: 0  },
+    { n: "Kota Bandar Lampung",  c: 30 },
+    { n: "Lampung Selatan",      c: 3  }
   ],
   reasons: [
     { t: "Belum sempat / belum mendaftar", c: "≈8 orang" },
@@ -313,7 +313,7 @@ const DATA = {
   notes: [
     { t: "Bumida penyedia asuransi profesi paling banyak disebut", c: "diikuti Allianz" },
     { t: "Mayoritas berstatus SWASTA & beragama Islam", c: "" },
-    { t: "61% responden sudah mengikuti ONE POGI 2026", c: "39 dari 64" }
+    { t: "Mayoritas responden sudah mengikuti ONE POGI 2026", c: "" }
   ],
   quality: [
     { type: "dup", tag: "Duplikat baru", h: "2 duplikat baru dari isian 17 Juni (perlu dibuang)",
@@ -367,14 +367,36 @@ function heatColor(c, max){
   return { bg:`rgb(${r|0},${g|0},${bl|0})`, fg: t>0.5 ? '#fff' : '#6d3b6b' };
 }
 
+// Posisi kartogram (kolom/baris) tiap wilayah — tetap, tidak ikut data live
+const GEO = {
+  "Way Kanan":           { col:2, row:1 },
+  "Mesuji":              { col:5, row:1 },
+  "Lampung Utara":       { col:3, row:2 },
+  "Tulang Bawang Barat": { col:4, row:2 },
+  "Tulang Bawang":       { col:5, row:2 },
+  "Lampung Barat":       { col:1, row:3 },
+  "Lampung Tengah":      { col:3, row:3 },
+  "Kota Metro":          { col:4, row:3 },
+  "Lampung Timur":       { col:5, row:3 },
+  "Pesisir Barat":       { col:1, row:4 },
+  "Tanggamus":           { col:2, row:4 },
+  "Pringsewu":           { col:3, row:4 },
+  "Pesawaran":           { col:3, row:5 },
+  "Kota Bandar Lampung": { col:4, row:5 },
+  "Lampung Selatan":     { col:4, row:6 }
+};
+
 function renderMap(){
-  const max = Math.max(...DATA.sebaran.map(s=>s.c));
-  document.getElementById('tilemap').innerHTML = DATA.sebaran.map(s=>{
+  const cnt = {};
+  DATA.sebaran.forEach(s=>{ cnt[s.n] = s.c; });
+  const rows = Object.keys(GEO).map(n=>({ n, c: cnt[n]||0, ...GEO[n] }));
+  const max = Math.max(...rows.map(s=>s.c), 1);
+  document.getElementById('tilemap').innerHTML = rows.map(s=>{
     const col = heatColor(s.c, max);
     return `<div class="tile ${s.c?'':'empty'}" style="grid-column:${s.col};grid-row:${s.row};background:${col.bg};color:${col.fg}">
       <span class="tn">${s.n}</span><span class="tc">${s.c}</span></div>`;
   }).join('');
-  const ranked = [...DATA.sebaran].sort((a,b)=>b.c-a.c)
+  const ranked = [...rows].sort((a,b)=>b.c-a.c)
     .map((s,i)=>({ label: s.n, value: s.c, cls: i===0?'':(s.c>=3?'teal':(s.c>0?'info':'warn')) }));
   renderBars('bars-sebaran', ranked, DATA.totalUnik);
 }
@@ -391,28 +413,70 @@ function renderDonut(){
   setTimeout(()=>d.style.setProperty('--p', p), 200);
 }
 
-document.getElementById('updated').textContent = 'Diperbarui: ' + DATA.updated;
-document.getElementById('kpi-masuk').textContent = DATA.totalMasuk;
-document.getElementById('kpi-unik').textContent = DATA.totalUnik;
-document.getElementById('kpi-ya').textContent = DATA.onepogi.ya;
-document.getElementById('kpi-dup').textContent = DATA.duplikat;
-document.getElementById('t-kepeg').textContent = DATA.totalUnik;
+function renderAll(){
+  document.getElementById('updated').textContent = 'Diperbarui: ' + DATA.updated;
+  document.getElementById('kpi-masuk').textContent = DATA.totalMasuk;
+  document.getElementById('kpi-unik').textContent = DATA.totalUnik;
+  document.getElementById('kpi-ya').textContent = DATA.onepogi.ya;
+  document.getElementById('kpi-dup').textContent = DATA.duplikat;
+  document.getElementById('t-kepeg').textContent = DATA.totalUnik;
+  document.getElementById('t-subsp').textContent = DATA.subspesialisTotal;
+  renderBars('bars-kepeg', DATA.kepegawaian, DATA.totalUnik);
+  renderBars('bars-jenjang', DATA.jenjang, DATA.totalUnik);
+  renderBars('bars-subsp', DATA.subspesialis, DATA.subspesialisTotal);
+  renderBars('bars-agama', DATA.agama, DATA.totalUnik);
+  renderBars('bars-nikah', DATA.nikah, DATA.totalUnik);
+  renderBars('bars-asuransi', DATA.asuransi, DATA.asuransiMax);
+  renderReasons('reasons', DATA.reasons);
+  renderReasons('notes', DATA.notes);
+  renderQuality();
+  renderDonut();
+  renderMap();
+  // animasi bar masuk
+  setTimeout(()=>document.querySelectorAll('.bar-fill').forEach(f=>{f.style.width=f.dataset.w+'%';}), 80);
+}
 
-document.getElementById('t-subsp').textContent = DATA.subspesialisTotal;
-renderBars('bars-kepeg', DATA.kepegawaian, DATA.totalUnik);
-renderBars('bars-jenjang', DATA.jenjang, DATA.totalUnik);
-renderBars('bars-subsp', DATA.subspesialis, DATA.subspesialisTotal);
-renderBars('bars-agama', DATA.agama, DATA.totalUnik);
-renderBars('bars-nikah', DATA.nikah, DATA.totalUnik);
-renderBars('bars-asuransi', DATA.asuransi, DATA.asuransiMax);
-renderReasons('reasons', DATA.reasons);
-renderReasons('notes', DATA.notes);
-renderQuality();
-renderDonut();
-renderMap();
+/* ====== AUTO-UPDATE (opsional) ======
+   Tempel URL Web App Apps Script di bawah agar dashboard menarik angka
+   terbaru otomatis. Kosongkan ('') untuk memakai snapshot bawaan saja. */
+const CONFIG = {
+  endpoint: ''   // contoh: 'https://script.google.com/macros/s/AKfycb..../exec'
+};
 
-/* animate bars in */
-setTimeout(()=>document.querySelectorAll('.bar-fill').forEach(f=>{f.style.width=f.dataset.w+'%';}), 150);
+function setSource(mode, ts){
+  const el = document.getElementById('source');
+  if(!el) return;
+  if(mode==='live'){ el.textContent = '● Live'; el.style.color = 'var(--ok)'; }
+  else if(mode==='loading'){ el.textContent = '○ memuat…'; el.style.color = 'var(--muted)'; }
+  else { el.textContent = '● Snapshot'; el.style.color = 'var(--muted)'; }
+}
+
+function loadLive(cb){
+  if(!CONFIG.endpoint){ cb(null); return; }
+  setSource('loading');
+  const name = '__pogiCB_' + Date.now();
+  const s = document.createElement('script');
+  let done = false;
+  const finish = (data)=>{ if(done) return; done=true; try{delete window[name];}catch(e){window[name]=undefined;} s.remove(); cb(data); };
+  window[name] = (data)=>finish(data);
+  s.onerror = ()=>finish(null);
+  setTimeout(()=>finish(null), 12000); // timeout 12 dtk → fallback snapshot
+  s.src = CONFIG.endpoint + (CONFIG.endpoint.indexOf('?')>=0?'&':'?') + 'callback=' + name;
+  document.body.appendChild(s);
+}
+
+// 1) tampilkan snapshot dulu (instan), 2) coba ambil data live, 3) re-render bila sukses
+renderAll();
+setSource(CONFIG.endpoint ? 'loading' : 'snapshot');
+loadLive(function(live){
+  if(live && live.totalUnik){
+    Object.assign(DATA, live);
+    renderAll();
+    setSource('live');
+  } else {
+    setSource('snapshot');
+  }
+});
 </script>
 </body>
 </html>
