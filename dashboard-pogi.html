@@ -81,6 +81,16 @@ body{font-family:var(--font);color:var(--ink);background:linear-gradient(180deg,
 .reason .rt b{color:var(--plum)}
 .reason .rt .cnt{color:var(--muted);font-size:.76rem}
 
+/* tile map / kartogram */
+.tilemap{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:1fr;gap:6px;max-width:540px;margin:2px auto 0}
+.tile{aspect-ratio:1/1;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3px;text-align:center;border:1px solid var(--line);box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+.tile .tn{font-size:.55rem;font-weight:700;line-height:1.05;letter-spacing:-.01em}
+.tile .tc{font-size:1.15rem;font-weight:800;margin-top:1px}
+.tile.empty{opacity:.5}
+.tile.empty .tc{font-weight:600}
+.heatbar{display:flex;align-items:center;gap:8px;justify-content:center;margin-top:14px;font-size:.7rem;color:var(--muted)}
+.heatbar .grad{height:10px;width:140px;border-radius:999px;background:linear-gradient(90deg,#f3eaf0,#e7689a,#6d3b6b)}
+
 /* quality */
 .q-card{border-left:4px solid var(--warn)}
 .q-list{display:flex;flex-direction:column;gap:12px;margin-top:4px}
@@ -156,6 +166,21 @@ footer{text-align:center;color:var(--muted);font-size:.76rem;padding:24px 16px 4
       <div class="bars" id="bars-nikah"></div>
     </div>
 
+  </div>
+
+  <div class="section-title">Sebaran Tempat Praktik (per Kabupaten / Kota)</div>
+  <div class="grid">
+    <div class="card">
+      <h3><span class="ic">🗺️</span> Peta Sebaran (Kartogram)</h3>
+      <p class="sub">Tiap dokter dihitung di lokasi praktik utamanya · total 64 · warna = kepadatan</p>
+      <div class="tilemap" id="tilemap"></div>
+      <div class="heatbar"><span>0</span><div class="grad"></div><span>29</span><span style="margin-left:6px">dokter</span></div>
+    </div>
+    <div class="card">
+      <h3><span class="ic">📍</span> Peringkat Wilayah</h3>
+      <p class="sub">Jumlah dokter per kabupaten/kota</p>
+      <div class="bars" id="bars-sebaran"></div>
+    </div>
   </div>
 
   <div class="section-title">Keikutsertaan ONE POGI 2026</div>
@@ -246,6 +271,24 @@ const DATA = {
     { label: "Allianz", value: 8, cls: "teal" }
   ],
   asuransiMax: 64,
+  // Sebaran tempat praktik utama per kabupaten/kota (col/row = posisi kartogram, geografis perkiraan)
+  sebaran: [
+    { n: "Way Kanan",            c: 3,  col: 2, row: 1 },
+    { n: "Mesuji",               c: 1,  col: 5, row: 1 },
+    { n: "Lampung Utara",        c: 2,  col: 3, row: 2 },
+    { n: "Tulang Bawang Barat",  c: 2,  col: 4, row: 2 },
+    { n: "Tulang Bawang",        c: 2,  col: 5, row: 2 },
+    { n: "Lampung Barat",        c: 1,  col: 1, row: 3 },
+    { n: "Lampung Tengah",       c: 7,  col: 3, row: 3 },
+    { n: "Kota Metro",           c: 6,  col: 4, row: 3 },
+    { n: "Lampung Timur",        c: 2,  col: 5, row: 3 },
+    { n: "Pesisir Barat",        c: 0,  col: 1, row: 4 },
+    { n: "Tanggamus",            c: 1,  col: 2, row: 4 },
+    { n: "Pringsewu",            c: 5,  col: 3, row: 4 },
+    { n: "Pesawaran",            c: 0,  col: 3, row: 5 },
+    { n: "Kota Bandar Lampung",  c: 29, col: 4, row: 5 },
+    { n: "Lampung Selatan",      c: 3,  col: 4, row: 6 }
+  ],
   reasons: [
     { t: "Belum sempat / belum mendaftar", c: "≈8 orang" },
     { t: "Belum paham cara & mekanisme pendaftaran", c: "≈5 orang" },
@@ -300,6 +343,28 @@ function renderQuality(){
     </div>`).join('');
 }
 
+function heatColor(c, max){
+  if(!c) return { bg:'#f3eaf0', fg:'#b7a6b3' };
+  const t = Math.sqrt(c/max);              // sqrt agar nilai kecil tetap terlihat
+  const a=[243,234,240], b=[231,104,154], d=[109,59,107];
+  let r,g,bl;
+  if(t<0.5){ const u=t/0.5; r=a[0]+(b[0]-a[0])*u; g=a[1]+(b[1]-a[1])*u; bl=a[2]+(b[2]-a[2])*u; }
+  else { const u=(t-0.5)/0.5; r=b[0]+(d[0]-b[0])*u; g=b[1]+(d[1]-b[1])*u; bl=b[2]+(d[2]-b[2])*u; }
+  return { bg:`rgb(${r|0},${g|0},${bl|0})`, fg: t>0.5 ? '#fff' : '#6d3b6b' };
+}
+
+function renderMap(){
+  const max = Math.max(...DATA.sebaran.map(s=>s.c));
+  document.getElementById('tilemap').innerHTML = DATA.sebaran.map(s=>{
+    const col = heatColor(s.c, max);
+    return `<div class="tile ${s.c?'':'empty'}" style="grid-column:${s.col};grid-row:${s.row};background:${col.bg};color:${col.fg}">
+      <span class="tn">${s.n}</span><span class="tc">${s.c}</span></div>`;
+  }).join('');
+  const ranked = [...DATA.sebaran].sort((a,b)=>b.c-a.c)
+    .map((s,i)=>({ label: s.n, value: s.c, cls: i===0?'':(s.c>=3?'teal':(s.c>0?'info':'warn')) }));
+  renderBars('bars-sebaran', ranked, DATA.totalUnik);
+}
+
 function renderDonut(){
   const ya = DATA.onepogi.ya, tot = DATA.onepogi.ya + DATA.onepogi.tidak;
   const p = pct(ya, tot);
@@ -328,6 +393,7 @@ renderReasons('reasons', DATA.reasons);
 renderReasons('notes', DATA.notes);
 renderQuality();
 renderDonut();
+renderMap();
 
 /* animate bars in */
 setTimeout(()=>document.querySelectorAll('.bar-fill').forEach(f=>{f.style.width=f.dataset.w+'%';}), 150);
