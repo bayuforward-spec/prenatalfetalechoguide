@@ -133,3 +133,6 @@ details.ref li{margin-bottom:4px}
 .seg span{display:block;text-align:center;padding:8px 6px;border:1px solid var(--line);border-radius:9px;
   font-size:.82rem;cursor:pointer;background:var(--panel2);color:var(--muted)}
 .seg input:checked + span{border-color:var(--teal);background:rgba(31,182,166,.14);color:var(--ink);font-weight:700}
+
+label.check{display:flex;align-items:flex-start;gap:8px;margin:7px 0;color:var(--muted);cursor:pointer;line-height:1.35}
+label.check input{width:auto;margin-top:2px}

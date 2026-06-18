@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="FetoGuard — alat kerja klinis pemantauan pertumbuhan janin terhambat (IUGR/FGR) berbasis Doppler: EFW & persentil, staging Barcelona, waktu persalinan ISUOG/SMFM, stratifikasi risiko IUFD.">
+<meta name="theme-color" content="#0f1720">
+<title>FetoGuard — Surveilans IUGR/FGR & Risiko IUFD</title>
+<link rel="stylesheet" href="assets/css/styles.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='86'>🩺</text></svg>">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">🩺</div>
+    <div>FetoGuard<small>Surveilans IUGR/FGR · Risiko IUFD</small></div>
+  </div>
+  <div class="tools">
+    <button class="icon-btn" onclick="App.exportLaporan()">⬇️ Laporan</button>
+    <button class="icon-btn" onclick="App.resetSemua()">↺ Reset</button>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="pbar">
+    <div>
+      <div class="pid" id="pbar-nama">Pasien belum diisi</div>
+      <div class="vmeta" id="pbar-info">Lengkapi data ibu & penanggalan di bawah</div>
+    </div>
+    <div class="ga">
+      <div class="vmeta">Usia kehamilan saat ini</div>
+      <b id="pbar-ga">—</b>
+      <div class="vmeta" id="pbar-hpl">HPL —</div>
+    </div>
+  </div>
+
+  <div class="cols">
+
+    <!-- ====================== KOLOM INPUT ====================== -->
+    <div>
+      <!-- DATA IBU & PENANGGALAN -->
+      <div class="card">
+        <h3>👩 Data Ibu & Penanggalan</h3>
+        <p class="sub">Identitas, HPHT/koreksi USG, dan faktor risiko awal.</p>
+
+        <div class="row2">
+          <div><label class="f">Nama / Inisial</label><input id="p-nama" placeholder="Ny. S"></div>
+          <div><label class="f">No. RM</label><input id="p-rm" placeholder="00-12-34"></div>
+        </div>
+        <div class="row2">
+          <div><label class="f">Usia ibu (th)</label><input id="p-usia" type="number" placeholder="29"></div>
+          <div><label class="f">G / P / A</label><input id="p-gpa" placeholder="G2P1A0"></div>
+        </div>
+
+        <h4>Penanggalan</h4>
+        <label class="f">Metode penentuan usia kehamilan</label>
+        <div class="seg" id="seg-metode">
+          <label><input type="radio" name="metode" value="hpht" checked><span>HPHT (Naegele)</span></label>
+          <label><input type="radio" name="metode" value="usg"><span>USG (CRL/biometri)</span></label>
+        </div>
+
+        <div id="blok-hpht">
+          <div class="row2">
+            <div><label class="f">HPHT</label><input id="p-hpht" type="date"></div>
+            <div><label class="f">Panjang siklus (hari)</label><input id="p-siklus" type="number" value="28" min="21" max="40"></div>
+          </div>
+        </div>
+
+        <div id="blok-usg" style="display:none">
+          <div class="row2">
+            <div><label class="f">Tanggal USG dating</label><input id="p-usgtgl" type="date"></div>
+            <div><label class="f">UK saat USG</label>
+              <div class="row2"><input id="p-usgw" type="number" placeholder="mgg" min="5" max="42"><input id="p-usgd" type="number" placeholder="hari" min="0" max="6"></div>
+            </div>
+          </div>
+          <p class="hint">Isi UK hasil USG (mis. CRL trimester 1) pada tanggal scan tersebut.</p>
+        </div>
+
+        <div id="redate-note"></div>
+
+        <h4>Faktor risiko FGR (catatan)</h4>
+        <label class="check" style="font-size:.82rem"><input type="checkbox" id="r-pe"> Riwayat preeklampsia / hipertensi</label>
+        <label class="check" style="font-size:.82rem"><input type="checkbox" id="r-fgr"> Riwayat FGR / lahir kecil sebelumnya</label>
+        <label class="check" style="font-size:.82rem"><input type="checkbox" id="r-rokok"> Merokok</label>
+        <label class="check" style="font-size:.82rem"><input type="checkbox" id="r-lain"> Penyakit ibu (ginjal/autoimun/DM)</label>
+
+        <button class="btn ghost" onclick="App.simpanPasien()">💾 Simpan Data Ibu</button>
+      </div>
+
+      <!-- PEMERIKSAAN KUNJUNGAN -->
+      <div class="card" style="margin-top:16px">
+        <h3>🔬 Pemeriksaan Kunjungan</h3>
+        <p class="sub">Masukkan data 1 kunjungan (trimester 1/2/3). UK dihitung dari tanggal.</p>
+
+        <div class="row2">
+          <div><label class="f">Tanggal pemeriksaan</label><input id="v-tgl" type="date"></div>
+          <div><label class="f">UK pada tanggal ini</label><input id="v-ga" disabled placeholder="otomatis"></div>
+        </div>
+        <div class="row2">
+          <div><label class="f">Tekanan darah (mmHg)</label><input id="v-td" placeholder="120/80"></div>
+          <div><label class="f">TFU (cm)</label><input id="v-tfu" type="number" placeholder="28"></div>
+        </div>
+
+        <h4>Biometri USG (mm) → EFW</h4>
+        <div class="row2">
+          <div><label class="f">BPD</label><input id="v-bpd" type="number" placeholder="82"></div>
+          <div><label class="f">HC</label><input id="v-hc" type="number" placeholder="295"></div>
+        </div>
+        <div class="row2">
+          <div><label class="f">AC</label><input id="v-ac" type="number" placeholder="265"></div>
+          <div><label class="f">FL</label><input id="v-fl" type="number" placeholder="58"></div>
+        </div>
+        <div class="seg" style="margin-top:8px">
+          <label><input type="checkbox" id="v-ac10"><span>AC &lt; P10</span></label>
+          <label><input type="checkbox" id="v-ac3"><span>AC &lt; P3</span></label>
+          <label><input type="checkbox" id="v-crossing"><span>Growth crossing &gt;2 kuartil</span></label>
+        </div>
+
+        <h4>Cairan amnion</h4>
+        <div class="row2">
+          <div><label class="f">AFI (cm)</label><input id="v-afi" type="number" placeholder="10"></div>
+          <div><label class="f">DVP / SDP (cm)</label><input id="v-dvp" type="number" placeholder="3"></div>
+        </div>
+
+        <h4>Doppler — Pulsatility Index (PI)</h4>
+        <div class="row2">
+          <div><label class="f">UA-PI (a. umbilikalis)</label><input id="v-ua" type="number" step="0.01" placeholder="1.10">
+            <label class="check" style="font-size:.74rem"><input type="checkbox" id="v-ovr_ua"> paksa abnormal</label></div>
+          <div><label class="f">MCA-PI (a. serebri media)</label><input id="v-mca" type="number" step="0.01" placeholder="1.60">
+            <label class="check" style="font-size:.74rem"><input type="checkbox" id="v-ovr_mca"> paksa abnormal</label></div>
+        </div>
+        <div class="row2">
+          <div><label class="f">UtA-PI rata-rata (a. uterina)</label><input id="v-uta" type="number" step="0.01" placeholder="0.90">
+            <label class="check" style="font-size:.74rem"><input type="checkbox" id="v-ovr_uta"> paksa abnormal</label></div>
+          <div><label class="f">DV-PI (duktus venosus)</label><input id="v-dv" type="number" step="0.01" placeholder="0.70">
+            <label class="check" style="font-size:.74rem"><input type="checkbox" id="v-ovr_dv"> paksa abnormal</label></div>
+        </div>
+        <p class="hint">CPR (MCA/UA) dihitung otomatis. Persentil Doppler bersifat <b>estimasi</b> (tabel referensi terbatas) — selalu bandingkan dengan grafik lokal Anda.</p>
+
+        <h4>Aliran kualitatif & kesejahteraan janin</h4>
+        <label class="f">UA end-diastolic flow (EDF)</label>
+        <div class="seg" id="seg-edf">
+          <label><input type="radio" name="edf" value="present" checked><span>Ada (normal)</span></label>
+          <label><input type="radio" name="edf" value="aedf"><span>Absent (AEDF)</span></label>
+          <label><input type="radio" name="edf" value="redf"><span>Reversed (REDF)</span></label>
+        </div>
+        <label class="f">Duktus venosus a-wave</label>
+        <div class="seg" id="seg-dvwave">
+          <label><input type="radio" name="dvwave" value="positive" checked><span>Positif</span></label>
+          <label><input type="radio" name="dvwave" value="reversed"><span>Absent/Reversed</span></label>
+        </div>
+        <label class="f">Aortic isthmus</label>
+        <div class="seg" id="seg-aorta">
+          <label><input type="radio" name="aorta" value="normal" checked><span>Normal/antegrade</span></label>
+          <label><input type="radio" name="aorta" value="reversed"><span>Reversed</span></label>
+        </div>
+        <label class="f">CTG / computerized STV</label>
+        <div class="seg" id="seg-ctg">
+          <label><input type="radio" name="ctg" value="normal" checked><span>Normal</span></label>
+          <label><input type="radio" name="ctg" value="abnormal"><span>STV menurun / abnormal</span></label>
+        </div>
+        <label class="check" style="font-size:.82rem"><input type="checkbox" id="v-decel"> Deselerasi spontan pada CTG</label>
+
+        <button class="btn" onclick="App.nilaiKunjungan()">🧮 Nilai & Simpan Kunjungan</button>
+        <button class="btn ghost" onclick="App.formBaru()" style="margin-top:8px">+ Kunjungan baru (kosongkan form)</button>
+      </div>
+    </div>
+
+    <!-- ====================== KOLOM HASIL ====================== -->
+    <div>
+      <div class="card">
+        <h3>📊 Hasil Penilaian</h3>
+        <p class="sub">Diagnosis SGA/FGR, staging Barcelona, manajemen & risiko IUFD.</p>
+        <div class="result" id="hasil"></div>
+        <div id="hasil-kosong" style="color:var(--soft);text-align:center;padding:24px 0;font-size:.88rem">
+          Isi pemeriksaan kunjungan lalu tekan <b>Nilai & Simpan</b> untuk melihat hasil.
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>🗂️ Riwayat Kunjungan & Tren</h3>
+        <p class="sub">Pantau perubahan EFW & Doppler antar kunjungan.</p>
+        <div id="riwayat"></div>
+      </div>
+
+      <details class="ref">
+        <summary>📚 Referensi klinis & catatan metode</summary>
+        <ul>
+          <li><b>EFW</b>: Hadlock et al. 1985 (4-param BPD/HC/AC/FL). Persentil: Hadlock 1991 (CV 12,7%) atau INTERGROWTH-21st (Stirnemann 2017).</li>
+          <li><b>Definisi SGA vs FGR</b>: Konsensus Delphi — Gordijn et al. UOG 2016;48:333.</li>
+          <li><b>Staging I–IV & manajemen</b>: Figueras & Gratacós. Fetal Diagn Ther 2014;36:86 (protokol Barcelona).</li>
+          <li><b>Waktu persalinan</b>: ISUOG Practice Guidelines 2020 (UOG 56:298) & SMFM Consult #52 (AJOG 2020;223:B2).</li>
+          <li><b>Risiko IUFD (OR)</b>: Caradeux et al. AJOG 2018;218(2S):S774 — AEDF 3,6 · REDF 7,3 · DV a-wave 11,6.</li>
+          <li><b>Doppler ref</b>: UtA-PI Gómez 2008 (UOG 32:128); UA/MCA/CPR tabel trimester-3 Cohen 2019 (RMMJ); DV-PIV Nguyen 2020. Persentil &lt;32 mg = estimasi.</li>
+          <li>⚠️ Persentil Doppler adalah <b>estimasi</b> karena reference range bervariasi antar populasi; gunakan override manual & grafik lokal Anda untuk keputusan.</li>
+        </ul>
+      </details>
+    </div>
+
+  </div>
+</div>
+
+<p class="disclaimer">⚠️ <b>Alat bantu keputusan klinis untuk tenaga medis.</b> Hasil bersifat estimasi berbasis literatur dan <b>tidak menggantikan</b> penilaian klinis menyeluruh, korelasi dengan kondisi ibu, maupun protokol institusi Anda. Verifikasi setiap ambang terhadap pedoman sumber.</p>
+
+<footer>
+  FetoGuard · Surveilans pertumbuhan janin terhambat &amp; risiko IUFD · untuk penggunaan profesional<br>
+  Berdasar pedoman ISUOG/SMFM, protokol Barcelona, konsensus Delphi.
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script src="assets/js/engine.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

@@ -1,3 +1,16 @@
+# Repositori prenatalfetalechoguide
+
+Berisi **dua aplikasi web statis yang terpisah**:
+
+| Aplikasi | Folder | Untuk |
+|---|---|---|
+| 🩺 **FetoGuard** — Surveilans IUGR/FGR & risiko IUFD | [`fgr/`](fgr/) | **alat kerja klinis** tenaga medis (Doppler, staging, waktu persalinan) |
+| 🌸 **Bidanara** — Sahabat Kesehatan Wanita | `/` (root) | aplikasi konsumen kesehatan wanita |
+
+➡️ Dokumentasi FetoGuard: **[`fgr/README.md`](fgr/README.md)** · buka di `http://localhost:8000/fgr/`.
+
+---
+
 # 🌸 Bidanara — Sahabat Kesehatan Wanita
 
 Aplikasi web **all-in-one** kesehatan wanita berbahasa Indonesia dengan **hasil instan**.
