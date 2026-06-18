@@ -29,10 +29,61 @@ const App = {
     ['p-hpht', 'p-siklus', 'p-usgtgl', 'p-usgw', 'p-usgd'].forEach(id =>
       document.getElementById(id).addEventListener('change', () => { this.refreshGA(); this.redateNote(); }));
 
+    // bagian "aliran kualitatif" buka/tutup otomatis sesuai UA-PI
+    ['v-ua', 'v-ovr_ua'].forEach(id => {
+      const e = document.getElementById(id);
+      if (e) e.addEventListener('input', () => this.checkQual());
+    });
+    const qb = document.getElementById('qual-body');
+    if (qb) qb.addEventListener('change', () => this.checkQual());
+
     this.muatPasien();
     this.toggleMetode();
     this.refreshGA();
     this.renderRiwayat();
+    this.checkQual();
+  },
+
+  /* ---------- aliran kualitatif: buka/tutup ---------- */
+  qualManual: false,
+  setQual(open) {
+    document.getElementById('qual-body').style.display = open ? 'block' : 'none';
+    const t = document.getElementById('qual-toggle');
+    t.textContent = open ? 'tutup ▴' : 'opsional ▾';
+    t.className = 'tag';
+  },
+  toggleQual() {
+    const open = document.getElementById('qual-body').style.display === 'none';
+    this.qualManual = true;
+    this.setQual(open);
+  },
+  // true bila ada isian non-default di bagian kualitatif
+  qualTerisi() {
+    return this.radio('edf') !== 'present' || this.radio('dvwave') === 'reversed' ||
+           this.radio('aorta') === 'reversed' || this.radio('ctg') === 'abnormal' || this.chk('v-decel');
+  },
+  checkQual() {
+    const hint = document.getElementById('qual-hint');
+    const edd = this.edd();
+    const tgl = this.val('v-tgl');
+    const ua = this.num('v-ua');
+    let uaAbn = false;
+    if (edd && tgl && ua != null) {
+      const gw = Engine.gaPada(edd, tgl) / 7;
+      const ev = Engine.cekUA(ua, gw);
+      uaAbn = this.chk('v-ovr_ua') || (ev && ev.abnormal);
+    }
+    if (uaAbn) {
+      this.setQual(true);
+      const t = document.getElementById('qual-toggle');
+      t.textContent = '⚠ perlu diisi ▴'; t.className = 'tag bad';
+      hint.innerHTML = `<div class="advice warn" style="margin:0 0 6px">⚠️ <b>UA-PI sudah abnormal (&gt; P95).</b> Lengkapi status EDF, duktus venosus & CTG — penentu utama stadium & risiko IUFD.</div>`;
+    } else {
+      hint.innerHTML = '';
+      // tetap terbuka bila ada isian non-default atau dibuka manual
+      if (this.qualTerisi() || this.qualManual) this.setQual(true);
+      else this.setQual(false);
+    }
   },
 
   /* ---------- util ---------- */
@@ -112,6 +163,7 @@ const App = {
     if (edd && tgl) out.value = Engine.gaText(Engine.gaPada(edd, tgl));
     else out.value = '';
     this.updateBar();
+    this.checkQual();
   },
 
   redateNote() {
@@ -165,6 +217,7 @@ const App = {
     ['v-ac10', 'v-ac3', 'v-crossing', 'v-ovr_ua', 'v-ovr_mca', 'v-ovr_uta', 'v-ovr_dv', 'v-decel'].forEach(id => document.getElementById(id).checked = false);
     ['edf', 'dvwave', 'aorta', 'ctg'].forEach(n => { const e = document.querySelector(`input[name="${n}"]`); if (e) e.checked = true; });
     document.getElementById('v-tgl').value = new Date().toISOString().slice(0, 10);
+    this.qualManual = false;
     this.refreshGA();
     this.toast('Form dikosongkan untuk kunjungan baru.');
   },
@@ -187,6 +240,7 @@ const App = {
     rad('edf', v.edf || 'present'); rad('dvwave', v.dvWave || 'positive');
     rad('aorta', v.aorta || 'normal'); rad('ctg', v.ctg || 'normal');
     this.refreshGA();
+    this.checkQual();
     this.lastVisit = v;
     const r = Engine.nilaiKunjungan(v, { edd: this.edd(), standar: this.standar });
     this.renderHasil(r, v);

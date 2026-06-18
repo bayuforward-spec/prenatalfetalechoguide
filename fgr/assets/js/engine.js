@@ -393,6 +393,7 @@ window.Engine = {
   fmtID, gaText, parseDate, addDays, diffDays,
   hitungEDD, gaPada, cekRedating,
   hitungEFW, efwPersentil,
+  cekUA: evalUA,
   nilaiKunjungan, diagnosaFGR, staging, risikoIUFD,
 };
 })();

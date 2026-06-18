@@ -140,7 +140,12 @@
         </div>
         <p class="hint">CPR (MCA/UA) dihitung otomatis. Persentil Doppler bersifat <b>estimasi</b> (tabel referensi terbatas) — selalu bandingkan dengan grafik lokal Anda.</p>
 
-        <h4>Aliran kualitatif & kesejahteraan janin</h4>
+        <h4 id="qual-head" onclick="App.toggleQual()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px">
+          <span>Aliran kualitatif & kesejahteraan janin</span>
+          <span id="qual-toggle" class="tag">opsional ▾</span>
+        </h4>
+        <div id="qual-hint"></div>
+        <div id="qual-body" style="display:none">
         <label class="f">UA end-diastolic flow (EDF)</label>
         <div class="seg" id="seg-edf">
           <label><input type="radio" name="edf" value="present" checked><span>Ada (normal)</span></label>
@@ -163,6 +168,7 @@
           <label><input type="radio" name="ctg" value="abnormal"><span>STV menurun / abnormal</span></label>
         </div>
         <label class="check" style="font-size:.82rem"><input type="checkbox" id="v-decel"> Deselerasi spontan pada CTG</label>
+        </div>
 
         <button class="btn" onclick="App.nilaiKunjungan()">🧮 Nilai & Simpan Kunjungan</button>
         <button class="btn ghost" onclick="App.formBaru()" style="margin-top:8px">+ Kunjungan baru (kosongkan form)</button>
