@@ -258,19 +258,19 @@ footer{text-align:center;color:var(--muted);font-size:.76rem;padding:24px 16px 4
 /* ====== DATA AGREGAT (hasil rekap; tanpa PII) ====== */
 const DATA = {
   updated: "18 Juni 2026",
-  totalMasuk: 78,
-  totalUnik: 78,
-  duplikat: 0,
-  onepogi: { ya: 45, tidak: 33 },
+  totalMasuk: 89,
+  totalUnik: 87,
+  duplikat: 2,
+  onepogi: { ya: 51, tidak: 36 },
 
   kepegawaian: [
-    { label: "SWASTA", value: 40, cls: "" },
-    { label: "PNS", value: 24, cls: "teal" },
-    { label: "PNS dan SWASTA", value: 13, cls: "info" }
+    { label: "SWASTA", value: 44, cls: "" },
+    { label: "PNS", value: 28, cls: "teal" },
+    { label: "PNS dan SWASTA", value: 14, cls: "info" }
   ],
   jenjang: [
-    { label: "Spesialis Obgyn", value: 58, cls: "" },
-    { label: "Subspesialis", value: 20, cls: "teal" }
+    { label: "Spesialis Obgyn", value: 66, cls: "" },
+    { label: "Subspesialis", value: 21, cls: "teal" }
   ],
   // Rincian subspesialis menurut bidang konsultan
   subspesialis: [
@@ -278,68 +278,70 @@ const DATA = {
     { label: "Obginsos — Obstetri Ginekologi Sosial", value: 6, cls: "teal" },
     { label: "KFm — Kedokteran Fetomaternal", value: 5, cls: "info" },
     { label: "Onk — Onkologi Ginekologi", value: 2, cls: "warn" },
-    { label: "Urogin-RE — Uroginekologi Rekonstruksi", value: 2, cls: "warn" }
+    { label: "Urogin-RE — Uroginekologi Rekonstruksi", value: 3, cls: "warn" }
   ],
-  subspesialisTotal: 20,
+  subspesialisTotal: 21,
   agama: [
-    { label: "Islam", value: 69, cls: "" },
-    { label: "Kristen / Protestan", value: 6, cls: "teal" },
+    { label: "Islam", value: 77, cls: "" },
+    { label: "Kristen / Protestan", value: 7, cls: "teal" },
     { label: "Hindu", value: 2, cls: "info" },
     { label: "Katolik", value: 1, cls: "warn" }
   ],
   nikah: [
-    { label: "Menikah", value: 73, cls: "" },
+    { label: "Menikah", value: 82, cls: "" },
     { label: "Belum menikah", value: 3, cls: "teal" },
     { label: "Tidak terisi", value: 2, cls: "warn" }
   ],
   asuransi: [
-    { label: "Bumida", value: 21, cls: "" },
+    { label: "Bumida", value: 23, cls: "" },
     { label: "Allianz", value: 7, cls: "teal" },
     { label: "AXA Mandiri", value: 1, cls: "info" }
   ],
-  asuransiMax: 78,
+  asuransiMax: 87,
   // Jumlah kab/kota berbeda tempat praktik per dokter (dari SIP 1-3)
   multiKab: [
-    { label: "Praktik di 1 kab/kota", value: 60, cls: "" },
-    { label: "Praktik di 2 kab/kota", value: 15, cls: "teal" },
+    { label: "Praktik di 1 kab/kota", value: 66, cls: "" },
+    { label: "Praktik di 2 kab/kota", value: 18, cls: "teal" },
     { label: "Praktik di 3 kab/kota", value: 3, cls: "info" }
   ],
-  multiKabLintas: 18,
+  multiKabLintas: 21,
   // Sebaran tempat praktik utama per kabupaten/kota (posisi kartogram diatur via GEO di bawah)
   sebaran: [
     { n: "Way Kanan",            c: 3  },
     { n: "Mesuji",               c: 1  },
-    { n: "Lampung Utara",        c: 2  },
+    { n: "Lampung Utara",        c: 3  },
     { n: "Tulang Bawang Barat",  c: 2  },
     { n: "Tulang Bawang",        c: 3  },
     { n: "Lampung Barat",        c: 2  },
     { n: "Lampung Tengah",       c: 7  },
     { n: "Kota Metro",           c: 8  },
-    { n: "Lampung Timur",        c: 2  },
-    { n: "Pesisir Barat",        c: 0  },
+    { n: "Lampung Timur",        c: 4  },
+    { n: "Pesisir Barat",        c: 2  },
     { n: "Tanggamus",            c: 1  },
     { n: "Pringsewu",            c: 6  },
     { n: "Pesawaran",            c: 1  },
-    { n: "Kota Bandar Lampung",  c: 37 },
-    { n: "Lampung Selatan",      c: 3  }
+    { n: "Kota Bandar Lampung",  c: 39 },
+    { n: "Lampung Selatan",      c: 4  }
   ],
   reasons: [
-    { t: "Belum sempat / belum mendaftar", c: "≈10 orang" },
+    { t: "Belum sempat / belum mendaftar", c: "≈12 orang" },
+    { t: "Lainnya: faktor usia, \"tahun depan\", isian \"-\"/kosong", c: "≈9 orang" },
     { t: "Belum paham cara & mekanisme pendaftaran", c: "≈6 orang" },
     { t: "Biaya / sudah terlanjur bayar / sudah punya asuransi", c: "≈6 orang" },
-    { t: "Kesulitan teknis saat mendaftar (web error, dll)", c: "3 orang" },
-    { t: "Lainnya: faktor usia, \"tahun depan\", isian \"-\"/kosong", c: "≈8 orang" }
+    { t: "Kesulitan teknis saat mendaftar (web error, dll)", c: "3 orang" }
   ],
   notes: [
     { t: "Bumida penyedia asuransi profesi paling banyak disebut", c: "diikuti Allianz" },
     { t: "Mayoritas berstatus SWASTA & beragama Islam", c: "" },
-    { t: "18 dokter praktik di lebih dari 1 kabupaten/kota", c: "" }
+    { t: "21 dokter praktik di lebih dari 1 kabupaten/kota", c: "" }
   ],
   quality: [
+    { type: "dup", tag: "Duplikat", h: "2 entri ganda (perlu dibuang)",
+      b: "dr. Muhammad Irawan (6/15 8:53:41 & 6/18 15:01:21) dan dr. Angelina Handreswari (6/14 12:32:41 & 6/18 10:35:56). Buang entri lama tiap pasangan, simpan yang terbaru." },
     { type: "shift", tag: "Kolom bergeser", h: "1 baris dengan kolom tergeser",
       b: "dr. Dino Rinaldy: email masuk ke kolom Alamat & kolom Email Aktif kosong. Perlu digeser balik manual." },
-    { type: "shift", tag: "Field kosong", h: "Beberapa kolom penting kosong",
-      b: "Status Kepegawaian kosong (dr. Rio Yoga), Instansi kosong (dr. Metharisa), Email Aktif kosong (dr. Dino), status pernikahan kosong (dr. Syarifah & dr. Henny), jenjang kosong (dr. Idris)." }
+    { type: "shift", tag: "Field kosong", h: "Beberapa kolom penting kosong / di luar Lampung",
+      b: "Instansi & SIP kosong + domisili luar Lampung (dr. Mirzah), Status Kepegawaian kosong (dr. Rio), Instansi kosong (dr. Metharisa), status pernikahan kosong (dr. Syarifah & dr. Henny), jenjang kosong (dr. Idris)." }
   ]
 };
 
