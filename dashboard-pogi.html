@@ -33,7 +33,7 @@ body{font-family:var(--font);color:var(--ink);background:linear-gradient(180deg,
 .wrap{max-width:1080px;margin:0 auto;padding:18px 18px 60px}
 
 /* KPI cards */
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:8px}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:8px}
 .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 16px 14px}
 .kpi .n{font-size:2rem;font-weight:800;color:var(--plum);line-height:1}
 .kpi .l{font-size:.78rem;color:var(--muted);margin-top:6px;font-weight:600}
@@ -136,7 +136,6 @@ footer{text-align:center;color:var(--muted);font-size:.76rem;padding:24px 16px 4
     <div class="kpi"><div class="n" id="kpi-masuk">0</div><div class="l">Total responden masuk</div></div>
     <div class="kpi accent"><div class="n" id="kpi-unik">0</div><div class="l">Data unik (setelah dedup)</div></div>
     <div class="kpi teal"><div class="n" id="kpi-ya">0</div><div class="l">Sudah ikut ONE POGI 2026</div></div>
-    <div class="kpi bad"><div class="n" id="kpi-dup">0</div><div class="l">Duplikat terdeteksi</div></div>
   </div>
 
   <div class="section-title">Profil Anggota</div>
@@ -435,7 +434,6 @@ function renderAll(){
   document.getElementById('kpi-masuk').textContent = DATA.totalMasuk;
   document.getElementById('kpi-unik').textContent = DATA.totalUnik;
   document.getElementById('kpi-ya').textContent = DATA.onepogi.ya;
-  document.getElementById('kpi-dup').textContent = DATA.duplikat;
   document.getElementById('t-kepeg').textContent = DATA.totalUnik;
   document.getElementById('t-subsp').textContent = DATA.subspesialisTotal;
   renderBars('bars-kepeg', DATA.kepegawaian, DATA.totalUnik);
