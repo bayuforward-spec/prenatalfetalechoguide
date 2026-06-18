@@ -172,7 +172,12 @@
     <!-- ====================== KOLOM HASIL ====================== -->
     <div>
       <div class="card">
-        <h3>📊 Hasil Penilaian</h3>
+        <h3>📊 Hasil Penilaian
+          <select id="std-efw" onchange="App.gantiStandar(this.value)" style="width:auto;margin-left:auto;padding:5px 8px;font-size:.78rem">
+            <option value="hadlock">Persentil: Hadlock</option>
+            <option value="intergrowth">Persentil: INTERGROWTH</option>
+          </select>
+        </h3>
         <p class="sub">Diagnosis SGA/FGR, staging Barcelona, manajemen & risiko IUFD.</p>
         <div class="result" id="hasil"></div>
         <div id="hasil-kosong" style="color:var(--soft);text-align:center;padding:24px 0;font-size:.88rem">

@@ -2,8 +2,19 @@
  * app.js — Antarmuka FetoGuard: input, render hasil, riwayat, ekspor.
  */
 const App = {
-  standar: 'hadlock', // standar persentil EFW (default Hadlock; lihat toggle nanti)
+  standar: 'hadlock', // standar persentil EFW (Hadlock / INTERGROWTH)
   editId: null,
+  lastVisit: null,
+
+  gantiStandar(v) {
+    this.standar = v;
+    if (this.lastVisit) {
+      const r = Engine.nilaiKunjungan(this.lastVisit, { edd: this.edd(), standar: this.standar });
+      this.renderHasil(r, this.lastVisit);
+    }
+    this.renderRiwayat();
+    this.toast('Standar persentil: ' + (v === 'intergrowth' ? 'INTERGROWTH-21st' : 'Hadlock'));
+  },
 
   init() {
     const today = new Date().toISOString().slice(0, 10);
@@ -138,6 +149,7 @@ const App = {
     if (!v.tanggal) return this.toast('Tanggal pemeriksaan wajib diisi.');
     const r = Engine.nilaiKunjungan(v, { edd, standar: this.standar });
     if (r.ga == null) return this.toast('Usia kehamilan tidak valid pada tanggal tersebut.');
+    this.lastVisit = v;
     this.renderHasil(r, v);
     // simpan
     if (!Store.pasien() || !Object.keys(Store.pasien()).length) Store.setPasien(this.pasienDariForm());
@@ -175,6 +187,7 @@ const App = {
     rad('edf', v.edf || 'present'); rad('dvwave', v.dvWave || 'positive');
     rad('aorta', v.aorta || 'normal'); rad('ctg', v.ctg || 'normal');
     this.refreshGA();
+    this.lastVisit = v;
     const r = Engine.nilaiKunjungan(v, { edd: this.edd(), standar: this.standar });
     this.renderHasil(r, v);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -301,7 +314,46 @@ const App = {
       </div>`;
     }).join('');
 
-    box.innerHTML = tabel + '<h4>Daftar kunjungan</h4>' + kartu;
+    const chart = this.grafikTren(items);
+    box.innerHTML = chart + tabel + '<h4>Daftar kunjungan</h4>' + kartu;
+  },
+
+  /* Grafik tren persentil EFW (SVG, tanpa pustaka). x=UK, y=persentil 0–100. */
+  grafikTren(items) {
+    const pts = items.filter(o => o.r && o.r.efwPct).map(o => ({
+      gw: o.r.gw, p: Math.max(0, Math.min(100, o.r.efwPct.pct)), stage: o.r.staging.stage,
+    }));
+    if (pts.length < 1) return '';
+    const W = 320, H = 150, ml = 30, mr = 8, mt = 10, mb = 22;
+    const gws = pts.map(p => p.gw);
+    let x0 = Math.min(...gws) - 1, x1 = Math.max(...gws) + 1;
+    if (x1 - x0 < 4) { x0 -= 2; x1 += 2; }
+    const X = gw => ml + (gw - x0) / (x1 - x0) * (W - ml - mr);
+    const Y = p => mt + (1 - p / 100) * (H - mt - mb);
+    const warna = { 0: '#22c55e', 1: '#38bdf8', 2: '#f59e0b', 3: '#ef4444', 4: '#dc2626' };
+
+    // garis bantu P10 & P3
+    const band = (p, col, lbl) => `<line x1="${ml}" y1="${Y(p)}" x2="${W - mr}" y2="${Y(p)}" stroke="${col}" stroke-width="1" stroke-dasharray="4 3" opacity=".6"/>
+      <text x="${W - mr}" y="${Y(p) - 2}" fill="${col}" font-size="9" text-anchor="end">P${p}</text>`;
+    // sumbu x label
+    const xl = `<text x="${ml}" y="${H - 6}" fill="#7d93a8" font-size="9">${x0.toFixed(0)} mg</text>
+      <text x="${W - mr}" y="${H - 6}" fill="#7d93a8" font-size="9" text-anchor="end">${x1.toFixed(0)} mg</text>`;
+    // garis & titik
+    let path = '', dots = '';
+    pts.forEach((p, i) => {
+      path += (i === 0 ? 'M' : 'L') + X(p.gw).toFixed(1) + ' ' + Y(p.p).toFixed(1) + ' ';
+      dots += `<circle cx="${X(p.gw).toFixed(1)}" cy="${Y(p.p).toFixed(1)}" r="4" fill="${warna[p.stage] || '#1fb6a6'}" stroke="#0f1720" stroke-width="1.5"/>
+        <text x="${X(p.gw).toFixed(1)}" y="${(Y(p.p) - 7).toFixed(1)}" fill="#e8eef4" font-size="9" text-anchor="middle">P${p.p.toFixed(0)}</text>`;
+    });
+    return `<h4>Tren persentil EFW</h4>
+      <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;background:var(--panel2);border:1px solid var(--line);border-radius:10px">
+        ${band(10, '#f59e0b')}${band(3, '#ef4444')}
+        <path d="${path}" fill="none" stroke="#1fb6a6" stroke-width="2"/>
+        ${dots}${xl}
+        <text x="4" y="${mt + 6}" fill="#7d93a8" font-size="9">100</text>
+        <text x="10" y="${H - mb}" fill="#7d93a8" font-size="9">0</text>
+      </svg>
+      <p class="hint">Titik = kunjungan; warna sesuai stadium (hijau→merah). Garis putus = ambang P10 & P3.</p>`;
   },
 
   /* ---------- ekspor & reset ---------- */
