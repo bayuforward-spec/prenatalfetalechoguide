@@ -92,6 +92,7 @@ document.querySelectorAll('.btn-drive').forEach((btn) => {
 });
 $('#drive-close').addEventListener('click', () => { modal.hidden = true; });
 modal.addEventListener('click', (e) => { if (e.target === modal) modal.hidden = true; });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') modal.hidden = true; });
 
 function renderCrumb() {
   const parts = ['<span data-go="-1">📁 Drive</span>']

@@ -95,7 +95,9 @@ app.get('/api/drive/browse', async (req, res) => {
   try {
     res.json(await browse(folderId, type));
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    const msg = e?.errors?.[0]?.message || e?.response?.data?.error?.message || e.message;
+    console.error('Drive browse error:', msg);
+    res.status(500).json({ error: 'Drive: ' + msg });
   }
 });
 

@@ -58,28 +58,41 @@ export async function browse(folderId = '', type = 'video') {
   const FOLDER = "mimeType = 'application/vnd.google-apps.folder'";
   const media = type === 'audio' ? "mimeType contains 'audio/'" : "mimeType contains 'video/'";
 
-  let q;
-  if (folderId) {
-    q = `'${folderId}' in parents and trashed = false and (${FOLDER} or ${media})`;
-  } else {
-    q = `trashed = false and ${FOLDER} and (sharedWithMe = true or 'root' in parents)`;
-  }
-
-  const res = await drive.files.list({
-    q,
+  const common = {
     fields: 'files(id, name, mimeType, size)',
     orderBy: 'folder,name',
     pageSize: 500,
     spaces: 'drive',
     supportsAllDrives: true,
     includeItemsFromAllDrives: true,
-  });
+  };
 
-  const all = res.data.files || [];
+  let rawFiles = [];
+  if (folderId) {
+    const res = await drive.files.list({
+      ...common,
+      q: `'${folderId}' in parents and trashed = false and (${FOLDER} or ${media})`,
+    });
+    rawFiles = res.data.files || [];
+  } else {
+    // Tingkat atas: gabungkan "Shared with me" + root My Drive (dua query terpisah
+    // agar tidak memicu kombinasi query yang ditolak Drive API).
+    const [shared, root] = await Promise.all([
+      drive.files.list({ ...common, q: `sharedWithMe = true and trashed = false and (${FOLDER} or ${media})` }),
+      drive.files.list({ ...common, q: `'root' in parents and trashed = false and (${FOLDER} or ${media})` }),
+    ]);
+    const seen = new Set();
+    rawFiles = [...(shared.data.files || []), ...(root.data.files || [])].filter((f) => {
+      if (seen.has(f.id)) return false;
+      seen.add(f.id);
+      return true;
+    });
+  }
+
   const isFolder = (f) => f.mimeType === 'application/vnd.google-apps.folder';
   return {
-    folders: all.filter(isFolder).map((f) => ({ id: f.id, name: f.name })),
-    files: all.filter((f) => !isFolder(f)).map((f) => ({
+    folders: rawFiles.filter(isFolder).map((f) => ({ id: f.id, name: f.name })),
+    files: rawFiles.filter((f) => !isFolder(f)).map((f) => ({
       id: f.id, name: f.name, mimeType: f.mimeType, size: Number(f.size || 0),
     })),
   };
