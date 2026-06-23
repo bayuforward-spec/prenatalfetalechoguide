@@ -15,7 +15,12 @@ import { listFiles, browse, downloadFile, parseFileId } from './src/drive.js';
 
 const app = express();
 app.use(express.json());
-app.use(express.static(path.join(ROOT, 'public')));
+// Anti-cache: pastikan browser selalu memuat HTML/JS/CSS terbaru (hindari versi basi).
+app.use(express.static(path.join(ROOT, 'public'), {
+  etag: false,
+  lastModified: false,
+  setHeaders: (res) => res.setHeader('Cache-Control', 'no-store'),
+}));
 
 // Pastikan folder ada.
 for (const d of [config.uploadsDir, config.outputDir]) {
