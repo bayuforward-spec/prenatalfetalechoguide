@@ -134,7 +134,9 @@ export async function renderShort(job, onProgress = () => {}) {
     aParts.push(`${mixIns.join('')}amix=inputs=${mixIns.length}:duration=first:dropout_transition=0[aout]`);
     audioMap = '[aout]';
   } else {
-    audioMap = mixIns[0]; // '[1:a]'
+    // Hanya audio utama, tanpa filter audio: petakan langsung sebagai stream specifier
+    // (TANPA kurung siku — '[1:a]' akan dianggap label filtergraph & gagal).
+    audioMap = '1:a';
   }
 
   const filterComplex = [vf, ...aParts].join(';');
