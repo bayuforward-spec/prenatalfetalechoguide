@@ -63,9 +63,27 @@ Token tersimpan di `token.json` (sudah di-gitignore).
 - **Background blur** dari video itu sendiri agar tidak ada bar hitam.
 - **Caption gaya viral**: huruf besar tebal, outline tebal, animasi *pop-in*, posisi
   sepertiga bawah, timing otomatis dari teks Anda.
+- **Hook teks animasi 3 detik pertama**: teks besar penarik perhatian (mis.
+  "TUNGGU SAMPAI AKHIR!") muncul dengan animasi *pop* di sepertiga atas — bagian
+  paling menentukan retensi Shorts.
+- **Musik latar otomatis + ducking**: upload file musik (opsional), volume otomatis
+  *mengecil* saat audio utama berbunyi (*sidechain compression*), lalu naik lagi.
 - **Color grade punchy**: kontras & saturasi naik + sedikit *sharpen* (bisa dimatikan).
 - **Durasi mengikuti audio** (maks 3 menit); video **diulang otomatis** jika lebih pendek.
+  Musik juga diulang otomatis mengikuti durasi.
 - **Metadata teroptimasi**: judul ber-hook + `#Shorts`, hashtag relevan, deskripsi rapi, tags.
+
+## 📊 Prediksi virality
+Setelah render, aplikasi menampilkan **skor potensi viral (0-100)** berbasis heuristik
+*best-practice*: ada/tidaknya hook, durasi ideal, kepadatan caption, format, musik, dan
+grade warna — lengkap dengan **saran perbaikan konkret**. Ini gratis & jalan lokal, tapi
+**estimasi**, bukan kepastian.
+
+### Analisis AI mendalam (opsional, Higgsfield)
+Untuk penilaian AI sungguhan (kekuatan hook, risiko retensi, respon audiens), gunakan
+**Higgsfield `virality_predictor`**. Tool ini berjalan lewat asisten (Claude) — bukan API
+lokal — jadi tidak dibundel di aplikasi standalone. Cara pakai: bagikan video hasil render
+ke asisten dan minta "analisa virality video ini" (butuh akun/kredit Higgsfield Anda).
 
 > Catatan jujur: tidak ada jaminan viral — algoritma YouTube dipengaruhi banyak faktor
 > (hook 3 detik pertama, retensi, konsistensi posting). Aplikasi ini menerapkan
@@ -82,6 +100,7 @@ shorts-studio/
 │  ├─ pipeline.js       # Mesin FFmpeg (gabung, 9:16, grade, burn caption)
 │  ├─ captions.js       # Teks caption -> timing -> subtitle .ass gaya viral
 │  ├─ viral.js          # Optimasi judul/deskripsi/hashtag/tags
+│  ├─ analyzer.js       # Skor & saran potensi viral (heuristik lokal)
 │  ├─ youtube.js        # OAuth2 + upload (YouTube Data API v3)
 │  └─ auth.js           # Login YouTube via terminal (alternatif)
 ├─ public/              # Antarmuka web (HTML/CSS/JS)

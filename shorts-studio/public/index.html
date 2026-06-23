@@ -38,6 +38,16 @@
         </label>
         <audio id="preview-audio" class="preview" controls hidden></audio>
         <small class="hint">Durasi video akan mengikuti panjang audio (maks 3 menit untuk Shorts). Video diulang otomatis bila lebih pendek.</small>
+
+        <div class="music-block">
+          <label class="drop drop-mini" id="drop-music">
+            <input type="file" name="music" id="music" accept="audio/*" hidden>
+            <span class="drop-text">🎶 (Opsional) musik latar — di-duck otomatis</span>
+          </label>
+          <label class="vol">Volume musik
+            <input type="range" name="musicVolume" id="musicVolume" min="0" max="0.5" step="0.02" value="0.18">
+          </label>
+        </div>
       </section>
     </div>
 
@@ -60,7 +70,10 @@
     <!-- 4. EDIT / VIRAL -->
     <section class="card">
       <h3>4 · Edit otomatis</h3>
-      <label class="check"><input type="checkbox" name="viralGrade" checked> Grade warna punchy + sharpen (rekomendasi)</label>
+      <label>Hook 3 detik pertama (sangat disarankan)
+        <input type="text" name="hookText" id="hookText" maxlength="40" placeholder="contoh: TUNGGU SAMPAI AKHIR! / WAJIB TAHU INI">
+      </label>
+      <label class="check" style="margin-top:12px"><input type="checkbox" name="viralGrade" checked> Grade warna punchy + sharpen (rekomendasi)</label>
       <label class="check"><input type="checkbox" name="keepOriginalAudio"> Campur audio asli video pelan di belakang</label>
       <div class="meta-grid">
         <label>Judul (opsional)<input type="text" name="title" placeholder="Dikosongkan = dibuat otomatis dari caption"></label>
@@ -98,6 +111,7 @@
     <p id="stage" class="stage">Menunggu…</p>
     <div id="result-actions" hidden>
       <video id="result-video" class="preview" controls></video>
+      <div id="analysis" class="analysis" hidden></div>
       <div class="meta-preview" id="meta-preview"></div>
       <div class="row">
         <a id="download" class="btn-sm" download>⬇️ Unduh MP4</a>

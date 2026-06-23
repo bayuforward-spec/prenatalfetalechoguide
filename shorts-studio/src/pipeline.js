@@ -82,7 +82,12 @@ export async function renderShort(job, onProgress = () => {}) {
   const { ass, segments } = captionTextToAss(job.captionText, target, {
     width: config.width,
     height: config.height,
-  }, { style: job.captionStyle, uppercase: job.uppercase });
+  }, {
+    style: job.captionStyle,
+    uppercase: job.uppercase,
+    hookText: job.hookText,
+    hookSeconds: job.hookSeconds || 3,
+  });
   await fsp.writeFile(path.join(workDir, assName), ass, 'utf8');
 
   onProgress({ percent: 6, stage: 'Menyiapkan render' });
@@ -98,20 +103,47 @@ export async function renderShort(job, onProgress = () => {}) {
     `[bg][fg]overlay=(W-w)/2:(H-h)/2${grade},fps=${config.fps},subtitles=${assName}[v]`,
   ].join(';');
 
-  // --- Audio: pakai audio yang diupload; opsional campur audio asli video pelan ---
-  let audioMap;
-  let filterComplex = vf;
+  // Cek musik latar (opsional). Input ke-2 bila ada.
+  let hasMusic = false;
+  if (job.musicPath) {
+    try { hasMusic = (await probe(job.musicPath)).hasAudio; } catch { hasMusic = false; }
+  }
+  const musicIdx = 2; // video=0, audio=1, music=2
+
+  // --- Audio graph: audio utama + (opsional) musik di-duck + (opsional) audio asli video ---
+  const aParts = [];
+  const mixIns = [];
+  if (hasMusic) {
+    const vol = Number.isFinite(+job.musicVolume) ? +job.musicVolume : 0.18;
+    // Pisah audio utama: satu untuk mix, satu sebagai "key" sidechain (penurun musik).
+    aParts.push('[1:a]asplit=2[amain][akey]');
+    aParts.push(`[${musicIdx}:a]volume=${vol}[mraw]`);
+    // Ducking: musik otomatis mengecil saat audio utama berbunyi.
+    aParts.push('[mraw][akey]sidechaincompress=threshold=0.03:ratio=8:attack=5:release=300[mduck]');
+    mixIns.push('[amain]', '[mduck]');
+  } else {
+    mixIns.push('[1:a]');
+  }
   if (job.keepOriginalAudio && v.hasAudio) {
-    filterComplex += `;[1:a]volume=1.0[main];[0:a]volume=0.25[orig];[main][orig]amix=inputs=2:duration=first:dropout_transition=0[aout]`;
+    aParts.push('[0:a]volume=0.25[orig]');
+    mixIns.push('[orig]');
+  }
+
+  let audioMap;
+  if (mixIns.length > 1) {
+    aParts.push(`${mixIns.join('')}amix=inputs=${mixIns.length}:duration=first:dropout_transition=0[aout]`);
     audioMap = '[aout]';
   } else {
-    audioMap = '1:a';
+    audioMap = mixIns[0]; // '[1:a]'
   }
+
+  const filterComplex = [vf, ...aParts].join(';');
 
   const args = [
     '-y',
     '-stream_loop', '-1', '-i', videoPath, // loop video bila lebih pendek dari audio
     '-i', audioPath,
+    ...(hasMusic ? ['-stream_loop', '-1', '-i', job.musicPath] : []), // loop musik
     '-t', String(target),
     '-filter_complex', filterComplex,
     '-map', '[v]',
@@ -146,7 +178,7 @@ export async function renderShort(job, onProgress = () => {}) {
   await fsp.rm(workDir, { recursive: true, force: true }).catch(() => {});
 
   onProgress({ percent: 100, stage: 'Selesai' });
-  return { outPath, durationSec: target, captionSegments: segments.length };
+  return { outPath, durationSec: target, captionSegments: segments.length, hasMusic };
 }
 
 export { probe };

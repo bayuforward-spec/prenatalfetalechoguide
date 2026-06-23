@@ -7,6 +7,7 @@ import crypto from 'node:crypto';
 import { config, isYouTubeConfigured, ROOT } from './src/config.js';
 import { renderShort } from './src/pipeline.js';
 import { buildViralMetadata } from './src/viral.js';
+import { analyze } from './src/analyzer.js';
 import {
   getAuthUrl, exchangeCodeAndSave, isConnected, uploadVideo,
 } from './src/youtube.js';
@@ -76,11 +77,16 @@ app.get('/oauth2callback', async (req, res) => {
 // ---------- Render (gabung + edit + caption) ----------
 app.post(
   '/api/render',
-  upload.fields([{ name: 'video', maxCount: 1 }, { name: 'audio', maxCount: 1 }]),
+  upload.fields([
+    { name: 'video', maxCount: 1 },
+    { name: 'audio', maxCount: 1 },
+    { name: 'music', maxCount: 1 },
+  ]),
   async (req, res) => {
     try {
       const videoFile = req.files?.video?.[0];
       const audioFile = req.files?.audio?.[0];
+      const musicFile = req.files?.music?.[0];
       if (!videoFile) return res.status(400).json({ error: 'File video wajib diupload.' });
       if (!audioFile) return res.status(400).json({ error: 'File audio wajib diupload.' });
 
@@ -96,6 +102,7 @@ app.post(
       });
       job.videoPath = videoFile.path;
       job.audioPath = audioFile.path;
+      job.musicPath = musicFile?.path || null;
       job.privacy = body.privacy || config.defaultPrivacy;
       job.autoUpload = body.autoUpload === 'true' || body.autoUpload === true;
 
@@ -114,15 +121,20 @@ app.post(
 );
 
 async function renderJob(job, body) {
-  await renderShort(
+  const hookText = (body.hookText || '').trim();
+  const viralGrade = body.viralGrade !== 'false';
+  const result = await renderShort(
     {
       videoPath: job.videoPath,
       audioPath: job.audioPath,
+      musicPath: job.musicPath,
+      musicVolume: body.musicVolume,
       captionText: body.captionText || '',
       captionStyle: body.captionStyle || 'bold',
       uppercase: body.uppercase !== 'false',
+      hookText,
       keepOriginalAudio: body.keepOriginalAudio === 'true',
-      viralGrade: body.viralGrade !== 'false',
+      viralGrade,
       outPath: job.outPath,
     },
     (p) => { job.percent = p.percent; job.stage = p.stage; }
@@ -133,9 +145,20 @@ async function renderJob(job, body) {
   job.stage = 'Render selesai';
   job.downloadUrl = `/output/${path.basename(job.outPath)}`;
 
+  // Skor virality (heuristik lokal).
+  job.analysis = analyze({
+    durationSec: result.durationSec,
+    captionSegments: result.captionSegments,
+    hasHook: Boolean(hookText),
+    hasMusic: result.hasMusic,
+    viralGrade,
+    captionText: body.captionText || '',
+  });
+
   // Bersihkan file upload mentah.
   fsp.unlink(job.videoPath).catch(() => {});
   fsp.unlink(job.audioPath).catch(() => {});
+  if (job.musicPath) fsp.unlink(job.musicPath).catch(() => {});
 
   if (job.autoUpload) {
     if (!isConnected()) {
@@ -203,6 +226,7 @@ app.get('/api/job/:id', (req, res) => {
     uploadPercent: job.uploadPercent,
     downloadUrl: job.downloadUrl,
     meta: job.meta,
+    analysis: job.analysis,
     youtube: job.youtube,
     error: job.error,
     uploadError: job.uploadError,

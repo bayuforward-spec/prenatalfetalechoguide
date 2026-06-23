@@ -80,6 +80,8 @@ const STYLE_PRESETS = {
 export function buildAss(dims, segments, opts = {}) {
   const preset = STYLE_PRESETS[opts.style] || STYLE_PRESETS.bold;
   const marginV = Math.round(dims.height * 0.22); // posisi sepertiga bawah
+  const hookMarginV = Math.round(dims.height * 0.16); // hook di sepertiga atas
+  const hookFont = Math.round(dims.width * 0.11);
 
   const header = `[Script Info]
 ScriptType: v4.00+
@@ -91,6 +93,7 @@ WrapStyle: 2
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Viral,Arial,${preset.fontsize},${preset.primary},&H000000FF,${preset.outline},&H64000000,-1,0,0,0,100,100,0,0,1,${preset.outlineW},${preset.shadow},2,80,80,${marginV},1
+Style: Hook,Arial,${hookFont},&H0000F0FF,&H000000FF,&H00000000,&H64000000,-1,0,0,0,100,100,0,0,1,9,4,8,60,60,${hookMarginV},1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -104,6 +107,16 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     if (opts.uppercase !== false) t = t.toUpperCase();
     return `Dialogue: 0,${fmtTime(seg.start)},${fmtTime(seg.end)},Viral,,0,0,0,,${popIn}${t}`;
   });
+
+  // Hook teks animasi di detik-detik awal (layer 1 agar di atas caption).
+  const hookText = (opts.hookText || '').trim();
+  if (hookText) {
+    const hookSec = Math.max(1, Number(opts.hookSeconds) || 3);
+    const ht = escapeAssText(hookText).toUpperCase();
+    // Animasi: pop masuk (skala 60->110->100) + denyut halus + fade keluar.
+    const anim = '{\\fad(150,300)\\t(0,180,\\fscx110\\fscy110)\\t(180,360,\\fscx100\\fscy100)\\t(1000,1400,\\fscx104\\fscy104)\\t(1400,1800,\\fscx100\\fscy100)}';
+    lines.unshift(`Dialogue: 1,${fmtTime(0)},${fmtTime(hookSec)},Hook,,0,0,0,,${anim}${ht}`);
+  }
 
   return header + lines.join('\n') + '\n';
 }

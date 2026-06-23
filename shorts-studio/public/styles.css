@@ -78,3 +78,27 @@ label { font-size: .85rem; color: var(--mut); display: block; }
 .meta-preview b { color: var(--acc); }
 .yt-link { margin-top: 10px; }
 .yt-link a { color: var(--ok); font-weight: 700; }
+
+/* Musik latar */
+.music-block { margin-top: 12px; }
+.drop-mini { padding: 14px 12px; font-size: .85rem; }
+.vol { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: .8rem; }
+.vol input[type=range] { flex: 1; }
+
+/* Analyzer virality */
+.analysis { background: var(--card2); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin: 12px 0; }
+.score-head { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+.score-ring {
+  width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 1.5rem; font-weight: 800; color: #fff;
+  background: conic-gradient(var(--c) calc(var(--c) * 0), var(--c), #2b3052 0);
+  box-shadow: inset 0 0 0 6px var(--card2); border: 3px solid var(--c);
+}
+.score-grade { font-size: 1.1rem; font-weight: 800; }
+.score-head small { color: var(--mut); }
+.factor { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: .85rem; }
+.factor.ok span { color: var(--ok); }
+.factor.no span { color: var(--mut); }
+.tips { margin-top: 12px; font-size: .85rem; color: var(--txt); }
+.tips ul { margin: 8px 0 0; padding-left: 18px; color: var(--mut); }
+.tips li { margin-bottom: 6px; }

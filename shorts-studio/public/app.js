@@ -49,6 +49,21 @@ function createFileList(file) {
 wireDrop('#drop-video', '#video', '#preview-video', 'video');
 wireDrop('#drop-audio', '#audio', '#preview-audio', 'audio');
 
+// Drop musik (opsional, tanpa preview).
+(function wireMusic() {
+  const drop = $('#drop-music'), input = $('#music');
+  const set = (file) => {
+    if (!file) return;
+    input.files = createFileList(file);
+    drop.classList.add('filled');
+    drop.querySelector('.drop-text').textContent = '🎶 ' + file.name;
+  };
+  input.addEventListener('change', () => set(input.files[0]));
+  ['dragover', 'dragenter'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add('dragover'); }));
+  ['dragleave', 'drop'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove('dragover'); }));
+  drop.addEventListener('drop', (e) => set(e.dataTransfer.files[0]));
+})();
+
 // ---------- Submit ----------
 let currentJob = null;
 
@@ -134,9 +149,29 @@ async function poll(jobId) {
   }
 }
 
+function renderAnalysis(a) {
+  const box = $('#analysis');
+  if (!a) { box.hidden = true; return; }
+  box.hidden = false;
+  const color = a.score >= 70 ? 'var(--ok)' : a.score >= 50 ? '#f4b400' : 'var(--acc)';
+  const factorRows = a.factors.map((f) =>
+    `<div class="factor ${f.ok ? 'ok' : 'no'}"><span>${f.ok ? '✓' : '✗'} ${escapeHtml(f.name)}</span><b>${f.points}/${f.max}</b></div>`
+  ).join('');
+  const tipRows = (a.tips || []).map((t) => `<li>${escapeHtml(t)}</li>`).join('');
+  box.innerHTML = `
+    <div class="score-head">
+      <div class="score-ring" style="--c:${color}">${a.score}</div>
+      <div><div class="score-grade" style="color:${color}">${escapeHtml(a.grade)}</div>
+      <small>Skor potensi viral (heuristik)</small></div>
+    </div>
+    <div class="factors">${factorRows}</div>
+    ${tipRows ? `<div class="tips"><b>💡 Saran perbaikan:</b><ul>${tipRows}</ul></div>` : ''}`;
+}
+
 function finishRender(j) {
   $('#go').disabled = false;
   $('#result-actions').hidden = false;
+  renderAnalysis(j.analysis);
   if (j.meta) showMeta(j.meta);
   if (j.downloadUrl) {
     $('#result-video').src = j.downloadUrl;
