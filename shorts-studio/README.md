@@ -1,0 +1,95 @@
+# 🎬 Shorts Studio
+
+Aplikasi untuk **menggabungkan video + audio + caption** menjadi satu video vertikal
+**9:16 gaya viral**, lalu **auto-upload ke YouTube Shorts**.
+
+Alur sesuai keinginan:
+1. Upload **video**
+2. Upload **audio**
+3. Masukkan **caption** (teks biasa — timing dibuat otomatis)
+4. Sistem **menggabungkan & mengedit** otomatis (format 9:16, background blur, warna punchy, caption pop besar)
+5. **Auto-upload** ke YouTube Shorts Anda
+
+> Tidak perlu install FFmpeg manual — sudah memakai biner `ffmpeg-static`.
+
+---
+
+## 🚀 Cara menjalankan
+
+### 1. Install Node.js
+Butuh **Node.js 18+**. Cek: `node -v`. Belum punya? unduh di https://nodejs.org
+
+### 2. Install dependensi
+```bash
+cd shorts-studio
+npm install
+```
+
+### 3. (Opsional, untuk auto-upload) Siapkan kredensial YouTube
+Tanpa langkah ini, aplikasi tetap bisa **menggabungkan & mengunduh** video — hanya
+auto-upload yang nonaktif.
+
+1. Buka https://console.cloud.google.com → buat / pilih sebuah **Project**.
+2. **APIs & Services → Library** → cari **"YouTube Data API v3"** → **Enable**.
+3. **APIs & Services → OAuth consent screen**:
+   - User type: **External**, isi nama app & email.
+   - **Tambahkan email Anda sebagai "Test user"** (penting selama app belum diverifikasi).
+   - Scope cukup biarkan default; tambah `youtube.upload` bila diminta.
+4. **APIs & Services → Credentials → Create Credentials → OAuth client ID**:
+   - Application type: **Web application**.
+   - **Authorized redirect URIs** → tambahkan: `http://localhost:8787/oauth2callback`
+   - Klik Create, salin **Client ID** dan **Client secret**.
+5. Salin file env & isi:
+   ```bash
+   cp .env.example .env
+   ```
+   Lalu isi `GOOGLE_CLIENT_ID` dan `GOOGLE_CLIENT_SECRET` di `.env`.
+
+### 4. Jalankan
+```bash
+npm start
+```
+Buka **http://localhost:8787**
+
+### 5. Hubungkan YouTube (sekali saja)
+Di aplikasi, klik **"Hubungkan YouTube"** → login → izinkan.
+(Alternatif lewat terminal: `npm run auth`.)
+Token tersimpan di `token.json` (sudah di-gitignore).
+
+---
+
+## 🧠 Apa saja "edit otomatis"-nya?
+- **Format 9:16** (1080×1920) — wajib untuk Shorts.
+- **Background blur** dari video itu sendiri agar tidak ada bar hitam.
+- **Caption gaya viral**: huruf besar tebal, outline tebal, animasi *pop-in*, posisi
+  sepertiga bawah, timing otomatis dari teks Anda.
+- **Color grade punchy**: kontras & saturasi naik + sedikit *sharpen* (bisa dimatikan).
+- **Durasi mengikuti audio** (maks 3 menit); video **diulang otomatis** jika lebih pendek.
+- **Metadata teroptimasi**: judul ber-hook + `#Shorts`, hashtag relevan, deskripsi rapi, tags.
+
+> Catatan jujur: tidak ada jaminan viral — algoritma YouTube dipengaruhi banyak faktor
+> (hook 3 detik pertama, retensi, konsistensi posting). Aplikasi ini menerapkan
+> *best practice* format & metadata, sisanya soal konten & konsistensi.
+
+---
+
+## 📁 Struktur
+```
+shorts-studio/
+├─ server.js            # Server Express + routing + job
+├─ src/
+│  ├─ config.js         # Konfigurasi & env
+│  ├─ pipeline.js       # Mesin FFmpeg (gabung, 9:16, grade, burn caption)
+│  ├─ captions.js       # Teks caption -> timing -> subtitle .ass gaya viral
+│  ├─ viral.js          # Optimasi judul/deskripsi/hashtag/tags
+│  ├─ youtube.js        # OAuth2 + upload (YouTube Data API v3)
+│  └─ auth.js           # Login YouTube via terminal (alternatif)
+├─ public/              # Antarmuka web (HTML/CSS/JS)
+├─ uploads/             # File mentah sementara (gitignored)
+└─ output/              # Hasil render .mp4 (gitignored)
+```
+
+## ⚠️ Catatan
+- **Kuota upload**: YouTube Data API memberi kuota harian (~6 upload/hari pada kuota default 10.000 unit; `videos.insert` ≈ 1600 unit). Untuk lebih banyak, ajukan kenaikan kuota di Google Cloud.
+- File di `uploads/` dihapus otomatis setelah render. Hasil di `output/` tidak — bersihkan berkala.
+- Jangan commit `.env` atau `token.json` (sudah diabaikan git).

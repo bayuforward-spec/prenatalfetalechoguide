@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shorts Studio — Gabung • Edit • Upload</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand"><span class="logo">🎬</span> Shorts Studio</div>
+  <div id="yt-status" class="yt-status">…</div>
+</header>
+
+<main class="wrap">
+  <p class="intro">Upload video + audio, masukkan caption, dan biarkan sistem menggabungkan, mengedit gaya viral (9:16, caption pop, warna punchy), lalu auto-upload ke YouTube Shorts.</p>
+
+  <form id="form">
+    <div class="grid">
+      <!-- 1. VIDEO -->
+      <section class="card">
+        <h3>1 · Video</h3>
+        <label class="drop" id="drop-video">
+          <input type="file" name="video" id="video" accept="video/*" required hidden>
+          <span class="drop-text">📹 Pilih / jatuhkan file video</span>
+        </label>
+        <video id="preview-video" class="preview" controls hidden></video>
+      </section>
+
+      <!-- 2. AUDIO -->
+      <section class="card">
+        <h3>2 · Audio</h3>
+        <label class="drop" id="drop-audio">
+          <input type="file" name="audio" id="audio" accept="audio/*" required hidden>
+          <span class="drop-text">🎵 Pilih / jatuhkan file audio</span>
+        </label>
+        <audio id="preview-audio" class="preview" controls hidden></audio>
+        <small class="hint">Durasi video akan mengikuti panjang audio (maks 3 menit untuk Shorts). Video diulang otomatis bila lebih pendek.</small>
+      </section>
+    </div>
+
+    <!-- 3. CAPTION -->
+    <section class="card">
+      <h3>3 · Caption</h3>
+      <textarea name="captionText" id="captionText" rows="4" placeholder="Tulis caption di sini. Sistem akan memecah jadi potongan pendek & menyinkronkan otomatis sepanjang video."></textarea>
+      <div class="row">
+        <label>Gaya:
+          <select name="captionStyle">
+            <option value="bold">Putih tebal (aman)</option>
+            <option value="kuning">Kuning clickbait</option>
+            <option value="neon">Hijau neon</option>
+          </select>
+        </label>
+        <label class="check"><input type="checkbox" name="uppercase" checked> HURUF BESAR</label>
+      </div>
+    </section>
+
+    <!-- 4. EDIT / VIRAL -->
+    <section class="card">
+      <h3>4 · Edit otomatis</h3>
+      <label class="check"><input type="checkbox" name="viralGrade" checked> Grade warna punchy + sharpen (rekomendasi)</label>
+      <label class="check"><input type="checkbox" name="keepOriginalAudio"> Campur audio asli video pelan di belakang</label>
+      <div class="meta-grid">
+        <label>Judul (opsional)<input type="text" name="title" placeholder="Dikosongkan = dibuat otomatis dari caption"></label>
+        <label>Hashtag tambahan<input type="text" name="hashtags" placeholder="contoh: tips, parenting, motivasi"></label>
+      </div>
+      <label>Deskripsi (opsional)<textarea name="description" rows="2" placeholder="Dikosongkan = memakai caption + hashtag"></textarea></label>
+    </section>
+
+    <!-- 5. UPLOAD -->
+    <section class="card">
+      <h3>5 · Upload YouTube</h3>
+      <div id="yt-connect-box" class="connect-box" hidden>
+        <span>Belum terhubung ke akun YouTube.</span>
+        <a href="/auth/youtube" target="_blank" class="btn-sm" id="btn-connect">Hubungkan YouTube</a>
+      </div>
+      <div class="row">
+        <label class="check"><input type="checkbox" name="autoUpload" id="autoUpload"> Auto-upload setelah render</label>
+        <label>Privasi:
+          <select name="privacy" id="privacy">
+            <option value="unlisted">Unlisted</option>
+            <option value="private">Private</option>
+            <option value="public">Public</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <button type="submit" class="btn-go" id="go">🚀 Gabungkan & Proses</button>
+  </form>
+
+  <!-- HASIL -->
+  <section class="card result" id="result" hidden>
+    <h3>Proses</h3>
+    <div class="bar"><div class="bar-fill" id="bar"></div></div>
+    <p id="stage" class="stage">Menunggu…</p>
+    <div id="result-actions" hidden>
+      <video id="result-video" class="preview" controls></video>
+      <div class="meta-preview" id="meta-preview"></div>
+      <div class="row">
+        <a id="download" class="btn-sm" download>⬇️ Unduh MP4</a>
+        <button id="manual-upload" class="btn-sm" type="button" hidden>📤 Upload ke YouTube</button>
+      </div>
+      <p id="yt-link" class="yt-link"></p>
+    </div>
+  </section>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
