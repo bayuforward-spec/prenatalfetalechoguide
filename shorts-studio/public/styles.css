@@ -89,6 +89,24 @@ label { font-size: .85rem; color: var(--mut); display: block; }
 .btn-drive:disabled { opacity: .6; cursor: wait; }
 .drive-select { margin-top: 8px; }
 
+.drive-chosen { margin-top: 8px; color: var(--ok); font-size: .85rem; word-break: break-all; }
+
+/* Modal penjelajah Drive */
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 16px; }
+.modal-box { background: var(--card); border: 1px solid var(--line); border-radius: 16px; width: 100%; max-width: 560px; max-height: 80vh; display: flex; flex-direction: column; overflow: hidden; }
+.modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.crumb { font-size: .9rem; color: var(--txt); overflow-x: auto; white-space: nowrap; }
+.crumb span { cursor: pointer; color: var(--acc2); }
+.crumb span:hover { text-decoration: underline; }
+.crumb i { color: var(--mut); font-style: normal; margin: 0 2px; }
+.modal-close { background: var(--card2); border: 1px solid var(--line); color: var(--txt); border-radius: 8px; width: 32px; height: 32px; cursor: pointer; flex: none; }
+.drive-list { overflow-y: auto; padding: 8px; }
+.drive-row { padding: 11px 12px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+.drive-row small { color: var(--mut); margin-left: auto; }
+.drive-row:hover { background: var(--card2); }
+.drive-row.folder { color: #f4c84b; font-weight: 600; }
+.drive-loading { padding: 24px; text-align: center; color: var(--mut); }
+
 /* Musik latar */
 .music-block { margin-top: 12px; }
 .drop-mini { padding: 14px 12px; font-size: .85rem; }

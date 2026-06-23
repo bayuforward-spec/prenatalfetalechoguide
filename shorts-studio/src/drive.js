@@ -47,6 +47,44 @@ export async function listFiles(type = 'video') {
   }));
 }
 
+/**
+ * Jelajah folder Drive: kembalikan subfolder + file media di dalam sebuah folder.
+ * folderId kosong = tampilkan folder tingkat atas (milik sendiri + "Shared with me").
+ * @param {string} folderId
+ * @param {'video'|'audio'} type
+ */
+export async function browse(folderId = '', type = 'video') {
+  const drive = driveClient();
+  const FOLDER = "mimeType = 'application/vnd.google-apps.folder'";
+  const media = type === 'audio' ? "mimeType contains 'audio/'" : "mimeType contains 'video/'";
+
+  let q;
+  if (folderId) {
+    q = `'${folderId}' in parents and trashed = false and (${FOLDER} or ${media})`;
+  } else {
+    q = `trashed = false and ${FOLDER} and (sharedWithMe = true or 'root' in parents)`;
+  }
+
+  const res = await drive.files.list({
+    q,
+    fields: 'files(id, name, mimeType, size)',
+    orderBy: 'folder,name',
+    pageSize: 500,
+    spaces: 'drive',
+    supportsAllDrives: true,
+    includeItemsFromAllDrives: true,
+  });
+
+  const all = res.data.files || [];
+  const isFolder = (f) => f.mimeType === 'application/vnd.google-apps.folder';
+  return {
+    folders: all.filter(isFolder).map((f) => ({ id: f.id, name: f.name })),
+    files: all.filter((f) => !isFolder(f)).map((f) => ({
+      id: f.id, name: f.name, mimeType: f.mimeType, size: Number(f.size || 0),
+    })),
+  };
+}
+
 /** Ambil metadata satu file (untuk nama & ekstensi). */
 export async function getFileMeta(fileId) {
   const drive = driveClient();

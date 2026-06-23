@@ -11,7 +11,7 @@ import { analyze } from './src/analyzer.js';
 import {
   getAuthUrl, exchangeCodeAndSave, isConnected, uploadVideo,
 } from './src/youtube.js';
-import { listFiles, downloadFile, parseFileId } from './src/drive.js';
+import { listFiles, browse, downloadFile, parseFileId } from './src/drive.js';
 
 const app = express();
 app.use(express.json());
@@ -87,6 +87,18 @@ app.get('/api/drive/list', async (req, res) => {
   }
 });
 
+// ---------- Google Drive: jelajah folder ----------
+app.get('/api/drive/browse', async (req, res) => {
+  if (!isConnected()) return res.status(400).json({ error: 'Belum terhubung ke Google.' });
+  const type = req.query.type === 'audio' ? 'audio' : 'video';
+  const folderId = req.query.folderId ? parseFileId(req.query.folderId) : '';
+  try {
+    res.json(await browse(folderId, type));
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ---------- Render (gabung + edit + caption) ----------
 app.post(
   '/api/render',
@@ -129,6 +141,7 @@ app.post(
       job.driveAudioId = driveAudioId;
       job.driveMusicId = driveMusicId;
       job.privacy = body.privacy || config.defaultPrivacy;
+      job.scheduledAt = (body.scheduledAt || '').trim() || null; // ISO string utk jadwal publish
       job.autoUpload = body.autoUpload === 'true' || body.autoUpload === true;
 
       // Render async; klien polling /api/job/:id.
@@ -217,6 +230,7 @@ async function renderJob(job, body) {
         description: job.meta.description,
         tags: job.meta.tags,
         privacyStatus: job.privacy,
+        publishAt: job.scheduledAt,
       },
       (p) => { job.uploadPercent = p; }
     );
@@ -245,6 +259,7 @@ app.post('/api/upload/:jobId', async (req, res) => {
         description: job.meta.description,
         tags: job.meta.tags,
         privacyStatus: req.body?.privacy || job.privacy || config.defaultPrivacy,
+        publishAt: req.body?.scheduledAt || job.scheduledAt || null,
       },
       (p) => { job.uploadPercent = p; }
     );

@@ -92,7 +92,10 @@ export async function uploadVideo(opts, onProgress = () => {}) {
           categoryId: '24', // Entertainment
         },
         status: {
-          privacyStatus: opts.privacyStatus || config.defaultPrivacy,
+          // Jadwal publish: video diunggah sebagai 'private' lalu otomatis
+          // dipublikasikan oleh YouTube pada waktu publishAt (RFC3339).
+          privacyStatus: opts.publishAt ? 'private' : (opts.privacyStatus || config.defaultPrivacy),
+          ...(opts.publishAt ? { publishAt: opts.publishAt } : {}),
           selfDeclaredMadeForKids: false,
         },
       },

@@ -64,52 +64,93 @@ wireDrop('#drop-audio', '#audio', '#preview-audio', 'audio');
   drop.addEventListener('drop', (e) => set(e.dataTransfer.files[0]));
 })();
 
-// ---------- Google Drive picker ----------
-const driveCache = {};
+// ---------- Google Drive folder browser (modal) ----------
 function fmtSize(b) {
   if (!b) return '';
   const mb = b / 1024 / 1024;
-  return mb >= 1 ? ` (${mb.toFixed(1)} MB)` : ` (${Math.round(b / 1024)} KB)`;
+  return mb >= 1 ? ` · ${mb.toFixed(1)} MB` : ` · ${Math.round(b / 1024)} KB`;
 }
+const drive = {
+  kind: 'video',          // video | audio | music
+  apiType: 'video',       // video | audio
+  stack: [],              // [{id, name}] breadcrumb
+};
+const modal = $('#drive-modal');
+const driveList = $('#drive-list');
+
 document.querySelectorAll('.btn-drive').forEach((btn) => {
-  btn.addEventListener('click', async () => {
+  btn.addEventListener('click', () => {
     if (!status.youtubeConnected) {
       return alert('Hubungkan akun Google dulu (tombol "Hubungkan YouTube" di bagian 5) agar bisa baca Google Drive.');
     }
-    const kind = btn.dataset.kind;                 // video | audio | music
-    const apiType = kind === 'video' ? 'video' : 'audio';
-    const sel = $('#drive-' + kind);
-    const original = btn.textContent;
-    btn.textContent = '⏳ Memuat daftar Drive…';
-    btn.disabled = true;
-    try {
-      const data = driveCache[apiType] || await (await fetch('/api/drive/list?type=' + apiType)).json();
-      if (data.error) throw new Error(data.error);
-      driveCache[apiType] = data;
-      if (!data.files.length) { alert('Tidak ada file ' + apiType + ' ditemukan di Drive Anda.'); return; }
-      sel.innerHTML = '<option value="">— pilih file dari Drive —</option>' +
-        data.files.map((f) => `<option value="${f.id}">${f.name}${fmtSize(f.size)}</option>`).join('');
-      sel.hidden = false;
-    } catch (e) {
-      alert('Gagal memuat Drive: ' + e.message);
-    } finally {
-      btn.textContent = original;
-      btn.disabled = false;
-    }
+    drive.kind = btn.dataset.kind;
+    drive.apiType = drive.kind === 'video' ? 'video' : 'audio';
+    drive.stack = [];
+    modal.hidden = false;
+    browseDrive('', '');
   });
 });
-// Saat memilih dari Drive, kosongkan file upload untuk input yang sama (hindari ganda).
-['video', 'audio', 'music'].forEach((kind) => {
-  const sel = $('#drive-' + kind);
-  sel.addEventListener('change', () => {
-    if (sel.value) {
-      const input = $('#' + kind);
-      input.value = '';
-      const drop = $('#drop-' + kind);
-      drop.classList.remove('filled');
-    }
+$('#drive-close').addEventListener('click', () => { modal.hidden = true; });
+modal.addEventListener('click', (e) => { if (e.target === modal) modal.hidden = true; });
+
+function renderCrumb() {
+  const parts = ['<span data-go="-1">📁 Drive</span>']
+    .concat(drive.stack.map((f, i) => `<span data-go="${i}">${escapeHtml(f.name)}</span>`));
+  $('#drive-crumb').innerHTML = parts.join(' <i>›</i> ');
+  $('#drive-crumb').querySelectorAll('[data-go]').forEach((el) => {
+    el.addEventListener('click', () => {
+      const idx = Number(el.dataset.go);
+      drive.stack = idx < 0 ? [] : drive.stack.slice(0, idx + 1);
+      const cur = drive.stack[drive.stack.length - 1];
+      browseDrive(cur ? cur.id : '', '', true);
+    });
   });
-});
+}
+
+async function browseDrive(folderId, _name, fromCrumb) {
+  driveList.innerHTML = '<div class="drive-loading">Memuat…</div>';
+  renderCrumb();
+  let data;
+  try {
+    data = await (await fetch(`/api/drive/browse?type=${drive.apiType}&folderId=${encodeURIComponent(folderId)}`)).json();
+    if (data.error) throw new Error(data.error);
+  } catch (e) {
+    driveList.innerHTML = `<div class="drive-loading">Gagal: ${escapeHtml(e.message)}</div>`;
+    return;
+  }
+  const rows = [];
+  for (const f of data.folders) {
+    rows.push(`<div class="drive-row folder" data-fid="${f.id}" data-fname="${escapeHtml(f.name)}">📁 ${escapeHtml(f.name)}</div>`);
+  }
+  for (const f of data.files) {
+    const icon = drive.apiType === 'audio' ? '🎵' : '🎬';
+    rows.push(`<div class="drive-row file" data-id="${f.id}" data-name="${escapeHtml(f.name)}">${icon} ${escapeHtml(f.name)}<small>${fmtSize(f.size)}</small></div>`);
+  }
+  if (!rows.length) rows.push('<div class="drive-loading">Folder ini kosong (tidak ada subfolder / file ' + drive.apiType + ').</div>');
+  driveList.innerHTML = rows.join('');
+
+  driveList.querySelectorAll('.drive-row.folder').forEach((el) => {
+    el.addEventListener('click', () => {
+      drive.stack.push({ id: el.dataset.fid, name: el.dataset.fname });
+      browseDrive(el.dataset.fid, el.dataset.fname);
+    });
+  });
+  driveList.querySelectorAll('.drive-row.file').forEach((el) => {
+    el.addEventListener('click', () => selectDriveFile(el.dataset.id, el.dataset.name));
+  });
+}
+
+function selectDriveFile(id, name) {
+  $('#drive-' + drive.kind).value = id;
+  const chosen = $('#chosen-' + drive.kind);
+  chosen.textContent = '✅ Drive: ' + name;
+  chosen.hidden = false;
+  // Kosongkan file upload untuk input yang sama (hindari ganda).
+  const input = $('#' + drive.kind);
+  if (input) input.value = '';
+  $('#drop-' + drive.kind)?.classList.remove('filled');
+  modal.hidden = true;
+}
 
 // ---------- Submit ----------
 let currentJob = null;
@@ -124,6 +165,21 @@ $('#form').addEventListener('submit', async (e) => {
 
   if ($('#autoUpload').checked && status.youtubeConfigured && !status.youtubeConnected) {
     return alert('Aktifkan auto-upload setelah menghubungkan YouTube. Klik "Hubungkan YouTube" dulu.');
+  }
+
+  // Jadwal: konversi waktu lokal -> ISO (RFC3339). Wajib di masa depan + auto-upload.
+  const localDt = $('#scheduledAtLocal').value;
+  if (localDt) {
+    const when = new Date(localDt);
+    if (isNaN(when) || when.getTime() <= Date.now()) {
+      return alert('Waktu jadwal harus di masa depan.');
+    }
+    if (!$('#autoUpload').checked) {
+      return alert('Untuk menjadwalkan publish, centang "Auto-upload setelah render" dulu.');
+    }
+    $('#scheduledAt').value = when.toISOString();
+  } else {
+    $('#scheduledAt').value = '';
   }
 
   const fd = new FormData(form);
