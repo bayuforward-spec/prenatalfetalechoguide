@@ -75,14 +75,19 @@ export async function browse(folderId = '', type = 'video') {
     });
     rawFiles = res.data.files || [];
   } else {
-    // Tingkat atas: gabungkan "Shared with me" + root My Drive (dua query terpisah
-    // agar tidak memicu kombinasi query yang ditolak Drive API).
-    const [shared, root] = await Promise.all([
-      drive.files.list({ ...common, q: `sharedWithMe = true and trashed = false and (${FOLDER} or ${media})` }),
-      drive.files.list({ ...common, q: `'root' in parents and trashed = false and (${FOLDER} or ${media})` }),
+    // Tingkat atas: tampilkan SEMUA folder yang bisa diakses (umum) + file media
+    // yang ada di "Shared with me" / root, supaya tidak perlu masuk folder induk dulu.
+    const [folders, mediaShared, mediaRoot] = await Promise.all([
+      drive.files.list({ ...common, q: `${FOLDER} and trashed = false` }),
+      drive.files.list({ ...common, q: `sharedWithMe = true and trashed = false and ${media}` }),
+      drive.files.list({ ...common, q: `'root' in parents and trashed = false and ${media}` }),
     ]);
     const seen = new Set();
-    rawFiles = [...(shared.data.files || []), ...(root.data.files || [])].filter((f) => {
+    rawFiles = [
+      ...(folders.data.files || []),
+      ...(mediaShared.data.files || []),
+      ...(mediaRoot.data.files || []),
+    ].filter((f) => {
       if (seen.has(f.id)) return false;
       seen.add(f.id);
       return true;
