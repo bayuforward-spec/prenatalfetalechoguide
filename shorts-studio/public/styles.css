@@ -79,6 +79,16 @@ label { font-size: .85rem; color: var(--mut); display: block; }
 .yt-link { margin-top: 10px; }
 .yt-link a { color: var(--ok); font-weight: 700; }
 
+/* Google Drive picker */
+.drive-pick { margin-top: 10px; }
+.btn-drive {
+  width: 100%; padding: 9px 12px; border-radius: 10px; cursor: pointer; font: inherit;
+  background: var(--card2); color: var(--mut); border: 1px dashed var(--line);
+}
+.btn-drive:hover { border-color: var(--acc2); color: var(--txt); }
+.btn-drive:disabled { opacity: .6; cursor: wait; }
+.drive-select { margin-top: 8px; }
+
 /* Musik latar */
 .music-block { margin-top: 12px; }
 .drop-mini { padding: 14px 12px; font-size: .85rem; }

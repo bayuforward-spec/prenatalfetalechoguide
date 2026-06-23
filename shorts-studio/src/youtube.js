@@ -7,7 +7,10 @@ import { createReadStream, statSync } from 'node:fs';
 import { google } from 'googleapis';
 import { config, isYouTubeConfigured } from './config.js';
 
-const SCOPES = ['https://www.googleapis.com/auth/youtube.upload'];
+const SCOPES = [
+  'https://www.googleapis.com/auth/youtube.upload',
+  'https://www.googleapis.com/auth/drive.readonly', // baca file video/audio dari Drive
+];
 
 export function createOAuthClient() {
   const { clientId, clientSecret, redirectUri } = config.google;
@@ -46,7 +49,7 @@ export function isConnected() {
   return Boolean(t && (t.refresh_token || t.access_token));
 }
 
-function authedClient() {
+export function authedClient() {
   if (!isYouTubeConfigured()) {
     throw new Error('Kredensial Google belum diatur. Isi GOOGLE_CLIENT_ID & GOOGLE_CLIENT_SECRET di .env.');
   }

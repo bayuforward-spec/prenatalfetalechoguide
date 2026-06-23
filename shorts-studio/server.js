@@ -11,6 +11,7 @@ import { analyze } from './src/analyzer.js';
 import {
   getAuthUrl, exchangeCodeAndSave, isConnected, uploadVideo,
 } from './src/youtube.js';
+import { listFiles, downloadFile, parseFileId } from './src/drive.js';
 
 const app = express();
 app.use(express.json());
@@ -68,9 +69,21 @@ app.get('/oauth2callback', async (req, res) => {
   if (!code) return res.status(400).send('Tidak ada kode otorisasi.');
   try {
     await exchangeCodeAndSave(String(code));
-    res.send('<meta charset="utf-8"><h2 style="font-family:sans-serif">✅ Akun YouTube terhubung. Silakan kembali ke aplikasi & tutup tab ini.</h2><script>setTimeout(()=>window.close(),1500)</script>');
+    res.send('<meta charset="utf-8"><h2 style="font-family:sans-serif">✅ Akun Google terhubung (YouTube + Drive). Silakan kembali ke aplikasi & tutup tab ini.</h2><script>setTimeout(()=>window.close(),1500)</script>');
   } catch (e) {
     res.status(500).send('Gagal: ' + e.message);
+  }
+});
+
+// ---------- Google Drive: daftar file ----------
+app.get('/api/drive/list', async (req, res) => {
+  if (!isConnected()) return res.status(400).json({ error: 'Belum terhubung ke Google. Klik "Hubungkan YouTube/Drive".' });
+  const type = req.query.type === 'audio' ? 'audio' : 'video';
+  try {
+    const files = await listFiles(type);
+    res.json({ files });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
   }
 });
 
@@ -87,10 +100,19 @@ app.post(
       const videoFile = req.files?.video?.[0];
       const audioFile = req.files?.audio?.[0];
       const musicFile = req.files?.music?.[0];
-      if (!videoFile) return res.status(400).json({ error: 'File video wajib diupload.' });
-      if (!audioFile) return res.status(400).json({ error: 'File audio wajib diupload.' });
-
       const body = req.body || {};
+
+      // Sumber bisa dari upload ATAU Google Drive (ID/link).
+      const driveVideoId = parseFileId(body.driveVideoId);
+      const driveAudioId = parseFileId(body.driveAudioId);
+      const driveMusicId = parseFileId(body.driveMusicId);
+
+      if (!videoFile && !driveVideoId) return res.status(400).json({ error: 'Sumber video wajib (upload atau pilih dari Drive).' });
+      if (!audioFile && !driveAudioId) return res.status(400).json({ error: 'Sumber audio wajib (upload atau pilih dari Drive).' });
+      if ((driveVideoId || driveAudioId || driveMusicId) && !isConnected()) {
+        return res.status(400).json({ error: 'Sumber Drive dipilih tapi belum terhubung ke Google.' });
+      }
+
       const job = newJob();
       job.status = 'rendering';
       job.outPath = path.join(config.outputDir, `${job.id}.mp4`);
@@ -100,9 +122,12 @@ app.post(
         captionText: body.captionText,
         hashtags: body.hashtags,
       });
-      job.videoPath = videoFile.path;
-      job.audioPath = audioFile.path;
+      job.videoPath = videoFile?.path || null;
+      job.audioPath = audioFile?.path || null;
       job.musicPath = musicFile?.path || null;
+      job.driveVideoId = driveVideoId;
+      job.driveAudioId = driveAudioId;
+      job.driveMusicId = driveMusicId;
       job.privacy = body.privacy || config.defaultPrivacy;
       job.autoUpload = body.autoUpload === 'true' || body.autoUpload === true;
 
@@ -121,6 +146,23 @@ app.post(
 );
 
 async function renderJob(job, body) {
+  // Unduh sumber dari Google Drive bila dipilih (otomatis, di latar belakang).
+  if (job.driveVideoId || job.driveAudioId || job.driveMusicId) {
+    job.stage = 'Mengambil file dari Google Drive';
+    if (job.driveVideoId) {
+      job.stage = 'Mengambil video dari Drive';
+      job.videoPath = (await downloadFile(job.driveVideoId, config.uploadsDir, (p) => { job.percent = Math.round(p * 0.05); })).path;
+    }
+    if (job.driveAudioId) {
+      job.stage = 'Mengambil audio dari Drive';
+      job.audioPath = (await downloadFile(job.driveAudioId, config.uploadsDir, (p) => { job.percent = Math.round(p * 0.05); })).path;
+    }
+    if (job.driveMusicId) {
+      job.stage = 'Mengambil musik dari Drive';
+      job.musicPath = (await downloadFile(job.driveMusicId, config.uploadsDir, (p) => { job.percent = Math.round(p * 0.05); })).path;
+    }
+  }
+
   const hookText = (body.hookText || '').trim();
   const viralGrade = body.viralGrade !== 'false';
   const result = await renderShort(

@@ -25,12 +25,14 @@ cd shorts-studio
 npm install
 ```
 
-### 3. (Opsional, untuk auto-upload) Siapkan kredensial YouTube
-Tanpa langkah ini, aplikasi tetap bisa **menggabungkan & mengunduh** video — hanya
-auto-upload yang nonaktif.
+### 3. (Opsional) Siapkan kredensial Google — untuk auto-upload YouTube & Google Drive
+Tanpa langkah ini, aplikasi tetap bisa **menggabungkan & mengunduh** video dari file
+di komputer — hanya auto-upload YouTube & sumber Google Drive yang nonaktif.
 
 1. Buka https://console.cloud.google.com → buat / pilih sebuah **Project**.
-2. **APIs & Services → Library** → cari **"YouTube Data API v3"** → **Enable**.
+2. **APIs & Services → Library** → **Enable** dua API ini:
+   - **"YouTube Data API v3"** (untuk auto-upload)
+   - **"Google Drive API"** (untuk ambil video/audio dari Drive)
 3. **APIs & Services → OAuth consent screen**:
    - User type: **External**, isi nama app & email.
    - **Tambahkan email Anda sebagai "Test user"** (penting selama app belum diverifikasi).
@@ -51,10 +53,19 @@ npm start
 ```
 Buka **http://localhost:8787**
 
-### 5. Hubungkan YouTube (sekali saja)
-Di aplikasi, klik **"Hubungkan YouTube"** → login → izinkan.
+### 5. Hubungkan Google (sekali saja)
+Di aplikasi, klik **"Hubungkan YouTube"** → login → izinkan akses **YouTube + Drive**.
 (Alternatif lewat terminal: `npm run auth`.)
 Token tersimpan di `token.json` (sudah di-gitignore).
+
+> Sudah pernah connect sebelum fitur Drive ada? Hapus `token.json` lalu hubungkan
+> ulang agar izin Drive ikut diberikan.
+
+### 📁 Memakai file dari Google Drive
+Setelah terhubung, di bagian Video/Audio klik **"📁 atau pilih dari Google Drive"** →
+pilih file dari daftar. Aplikasi akan **mengambilnya otomatis** saat render — Anda tidak
+perlu download manual. (Secara teknis server tetap menarik byte file untuk diproses
+FFmpeg, tapi prosesnya otomatis di latar belakang.)
 
 ---
 
@@ -102,6 +113,7 @@ shorts-studio/
 │  ├─ viral.js          # Optimasi judul/deskripsi/hashtag/tags
 │  ├─ analyzer.js       # Skor & saran potensi viral (heuristik lokal)
 │  ├─ youtube.js        # OAuth2 + upload (YouTube Data API v3)
+│  ├─ drive.js          # Ambil video/audio dari Google Drive (Drive API)
 │  └─ auth.js           # Login YouTube via terminal (alternatif)
 ├─ public/              # Antarmuka web (HTML/CSS/JS)
 ├─ uploads/             # File mentah sementara (gitignored)

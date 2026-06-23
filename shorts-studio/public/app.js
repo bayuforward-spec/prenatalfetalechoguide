@@ -64,14 +64,63 @@ wireDrop('#drop-audio', '#audio', '#preview-audio', 'audio');
   drop.addEventListener('drop', (e) => set(e.dataTransfer.files[0]));
 })();
 
+// ---------- Google Drive picker ----------
+const driveCache = {};
+function fmtSize(b) {
+  if (!b) return '';
+  const mb = b / 1024 / 1024;
+  return mb >= 1 ? ` (${mb.toFixed(1)} MB)` : ` (${Math.round(b / 1024)} KB)`;
+}
+document.querySelectorAll('.btn-drive').forEach((btn) => {
+  btn.addEventListener('click', async () => {
+    if (!status.youtubeConnected) {
+      return alert('Hubungkan akun Google dulu (tombol "Hubungkan YouTube" di bagian 5) agar bisa baca Google Drive.');
+    }
+    const kind = btn.dataset.kind;                 // video | audio | music
+    const apiType = kind === 'video' ? 'video' : 'audio';
+    const sel = $('#drive-' + kind);
+    const original = btn.textContent;
+    btn.textContent = '⏳ Memuat daftar Drive…';
+    btn.disabled = true;
+    try {
+      const data = driveCache[apiType] || await (await fetch('/api/drive/list?type=' + apiType)).json();
+      if (data.error) throw new Error(data.error);
+      driveCache[apiType] = data;
+      if (!data.files.length) { alert('Tidak ada file ' + apiType + ' ditemukan di Drive Anda.'); return; }
+      sel.innerHTML = '<option value="">— pilih file dari Drive —</option>' +
+        data.files.map((f) => `<option value="${f.id}">${f.name}${fmtSize(f.size)}</option>`).join('');
+      sel.hidden = false;
+    } catch (e) {
+      alert('Gagal memuat Drive: ' + e.message);
+    } finally {
+      btn.textContent = original;
+      btn.disabled = false;
+    }
+  });
+});
+// Saat memilih dari Drive, kosongkan file upload untuk input yang sama (hindari ganda).
+['video', 'audio', 'music'].forEach((kind) => {
+  const sel = $('#drive-' + kind);
+  sel.addEventListener('change', () => {
+    if (sel.value) {
+      const input = $('#' + kind);
+      input.value = '';
+      const drop = $('#drop-' + kind);
+      drop.classList.remove('filled');
+    }
+  });
+});
+
 // ---------- Submit ----------
 let currentJob = null;
 
 $('#form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const form = $('#form');
-  if (!$('#video').files[0]) return alert('Pilih file video dulu.');
-  if (!$('#audio').files[0]) return alert('Pilih file audio dulu.');
+  const hasVideo = $('#video').files[0] || $('#drive-video').value;
+  const hasAudio = $('#audio').files[0] || $('#drive-audio').value;
+  if (!hasVideo) return alert('Pilih video dulu (upload atau dari Google Drive).');
+  if (!hasAudio) return alert('Pilih audio dulu (upload atau dari Google Drive).');
 
   if ($('#autoUpload').checked && status.youtubeConfigured && !status.youtubeConnected) {
     return alert('Aktifkan auto-upload setelah menghubungkan YouTube. Klik "Hubungkan YouTube" dulu.');
