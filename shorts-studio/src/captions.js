@@ -64,11 +64,11 @@ function escapeAssText(text) {
 
 const STYLE_PRESETS = {
   // Putih tebal + outline hitam tebal — paling aman & terbaca di mana saja.
-  bold: { primary: '&H00FFFFFF', outline: '&H00000000', fontsize: 96, outlineW: 7, shadow: 3 },
+  bold: { primary: '&H00FFFFFF', outline: '&H00000000', fontsize: 84, outlineW: 6, shadow: 3 },
   // Kuning cerah (gaya MrBeast/clickbait positif).
-  kuning: { primary: '&H0000F0FF', outline: '&H00000000', fontsize: 100, outlineW: 8, shadow: 3 },
+  kuning: { primary: '&H0000F0FF', outline: '&H00000000', fontsize: 86, outlineW: 7, shadow: 3 },
   // Hijau neon.
-  neon: { primary: '&H0000FF66', outline: '&H00000000', fontsize: 98, outlineW: 8, shadow: 3 },
+  neon: { primary: '&H0000FF66', outline: '&H00000000', fontsize: 86, outlineW: 7, shadow: 3 },
 };
 
 /**
@@ -81,19 +81,20 @@ export function buildAss(dims, segments, opts = {}) {
   const preset = STYLE_PRESETS[opts.style] || STYLE_PRESETS.bold;
   const marginV = Math.round(dims.height * 0.22); // posisi sepertiga bawah
   const hookMarginV = Math.round(dims.height * 0.16); // hook di sepertiga atas
-  const hookFont = Math.round(dims.width * 0.11);
+  const hookFont = Math.round(dims.width * 0.075);
+  const sideMargin = Math.round(dims.width * 0.10); // margin kiri/kanan aman (~108px)
 
   const header = `[Script Info]
 ScriptType: v4.00+
 PlayResX: ${dims.width}
 PlayResY: ${dims.height}
 ScaledBorderAndShadow: yes
-WrapStyle: 2
+WrapStyle: 0
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Viral,Arial,${preset.fontsize},${preset.primary},&H000000FF,${preset.outline},&H64000000,-1,0,0,0,100,100,0,0,1,${preset.outlineW},${preset.shadow},2,80,80,${marginV},1
-Style: Hook,Arial,${hookFont},&H0000F0FF,&H000000FF,&H00000000,&H64000000,-1,0,0,0,100,100,0,0,1,9,4,8,60,60,${hookMarginV},1
+Style: Viral,Arial,${preset.fontsize},${preset.primary},&H000000FF,${preset.outline},&H64000000,-1,0,0,0,100,100,0,0,1,${preset.outlineW},${preset.shadow},2,${sideMargin},${sideMargin},${marginV},1
+Style: Hook,Arial,${hookFont},&H0000F0FF,&H000000FF,&H00000000,&H64000000,-1,0,0,0,100,100,0,0,1,8,4,8,${sideMargin},${sideMargin},${hookMarginV},1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
