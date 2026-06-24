@@ -12,6 +12,7 @@ import {
   getAuthUrl, exchangeCodeAndSave, isConnected, uploadVideo,
 } from './src/youtube.js';
 import { listFiles, browse, downloadFile, parseFileId } from './src/drive.js';
+import { downloadClip, isYouTubeUrl } from './src/ytclip.js';
 
 const app = express();
 app.use(express.json());
@@ -126,7 +127,11 @@ app.post(
       const driveAudioId = parseFileId(body.driveAudioId);
       const driveMusicId = parseFileId(body.driveMusicId);
 
-      if (!videoFile && !driveVideoId) return res.status(400).json({ error: 'Sumber video wajib (upload atau pilih dari Drive).' });
+      // Sumber video bisa juga klip dari link YouTube.
+      const ytUrl = (body.ytUrl || '').trim();
+      if (ytUrl && !isYouTubeUrl(ytUrl)) return res.status(400).json({ error: 'Link YouTube tidak valid.' });
+
+      if (!videoFile && !driveVideoId && !ytUrl) return res.status(400).json({ error: 'Sumber video wajib (upload, Drive, atau klip YouTube).' });
       if (!audioFile && !driveAudioId) return res.status(400).json({ error: 'Sumber audio wajib (upload atau pilih dari Drive).' });
       if ((driveVideoId || driveAudioId || driveMusicId) && !isConnected()) {
         return res.status(400).json({ error: 'Sumber Drive dipilih tapi belum terhubung ke Google.' });
@@ -147,6 +152,9 @@ app.post(
       job.driveVideoId = driveVideoId;
       job.driveAudioId = driveAudioId;
       job.driveMusicId = driveMusicId;
+      job.ytUrl = ytUrl || null;
+      job.ytStart = body.ytStart || '0';
+      job.ytDuration = body.ytDuration || '';
       job.privacy = body.privacy || config.defaultPrivacy;
       job.scheduledAt = (body.scheduledAt || '').trim() || null; // ISO string utk jadwal publish
       job.autoUpload = body.autoUpload === 'true' || body.autoUpload === true;
@@ -166,6 +174,22 @@ app.post(
 );
 
 async function renderJob(job, body) {
+  // Ambil klip dari YouTube bila link diberikan (jadi sumber video).
+  if (job.ytUrl) {
+    job.stage = 'Mengunduh klip dari YouTube';
+    job.percent = 2;
+    const outPath = path.join(config.uploadsDir, `${job.id}-ytclip.mp4`);
+    const clip = await downloadClip({
+      url: job.ytUrl,
+      start: job.ytStart,
+      duration: job.ytDuration,
+      outPath,
+      maxDuration: config.maxDurationSec,
+    });
+    job.videoPath = clip.path;
+    job.percent = 6;
+  }
+
   // Unduh sumber dari Google Drive bila dipilih (otomatis, di latar belakang).
   if (job.driveVideoId || job.driveAudioId || job.driveMusicId) {
     job.stage = 'Mengambil file dari Google Drive';

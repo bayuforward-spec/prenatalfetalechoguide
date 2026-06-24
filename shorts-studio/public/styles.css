@@ -107,6 +107,10 @@ label { font-size: .85rem; color: var(--mut); display: block; }
 .drive-row.folder { color: #f4c84b; font-weight: 600; }
 .drive-loading { padding: 24px; text-align: center; color: var(--mut); }
 
+/* Klip dari YouTube */
+.yt-clip { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); }
+.yt-clip input[type=url] { margin-bottom: 4px; }
+
 /* Musik latar */
 .music-block { margin-top: 12px; }
 .drop-mini { padding: 14px 12px; font-size: .85rem; }

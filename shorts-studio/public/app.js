@@ -70,9 +70,9 @@ let currentJob = null;
 $('#form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const form = $('#form');
-  const hasVideo = $('#video').files[0];
+  const hasVideo = $('#video').files[0] || $('#ytUrl').value.trim();
   const hasAudio = $('#audio').files[0];
-  if (!hasVideo) return alert('Pilih file video dulu.');
+  if (!hasVideo) return alert('Pilih file video dulu, atau tempel link YouTube untuk klip.');
   if (!hasAudio) return alert('Pilih file audio dulu.');
 
   if ($('#autoUpload').checked && status.youtubeConfigured && !status.youtubeConnected) {

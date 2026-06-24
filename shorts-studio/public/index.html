@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Shorts Studio — Gabung • Edit • Upload</title>
-<link rel="stylesheet" href="styles.css?v=3">
+<link rel="stylesheet" href="styles.css?v=4">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
 </head>
 <body>
@@ -27,6 +27,20 @@
           <span class="drop-text">📹 Pilih / jatuhkan file video</span>
         </label>
         <video id="preview-video" class="preview" controls hidden></video>
+
+        <div class="yt-clip">
+          <small class="hint">✂️ atau ambil klip dari link YouTube:</small>
+          <input type="url" name="ytUrl" id="ytUrl" placeholder="Tempel link YouTube (https://youtu.be/...)">
+          <div class="row">
+            <label>Mulai (detik / m:dd)
+              <input type="text" name="ytStart" id="ytStart" placeholder="0:30" value="0">
+            </label>
+            <label>Durasi (detik, maks 180)
+              <input type="text" name="ytDuration" id="ytDuration" placeholder="30">
+            </label>
+          </div>
+          <small class="hint">Hanya untuk konten yang Anda punya hak/izin atasnya.</small>
+        </div>
       </section>
 
       <!-- 2. AUDIO -->
@@ -127,6 +141,6 @@
   </section>
 </main>
 
-<script src="app.js?v=3"></script>
+<script src="app.js?v=4"></script>
 </body>
 </html>
