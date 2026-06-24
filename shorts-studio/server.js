@@ -12,7 +12,7 @@ import {
   getAuthUrl, exchangeCodeAndSave, isConnected, uploadVideo,
 } from './src/youtube.js';
 import { listFiles, browse, downloadFile, parseFileId } from './src/drive.js';
-import { downloadClip, isYouTubeUrl } from './src/ytclip.js';
+import { downloadClip, isYouTubeUrl, fetchAutoCaptionText } from './src/ytclip.js';
 
 const app = express();
 app.use(express.json());
@@ -155,6 +155,7 @@ app.post(
       job.ytUrl = ytUrl || null;
       job.ytStart = body.ytStart || '0';
       job.ytDuration = body.ytDuration || '';
+      job.autoCaption = body.autoCaption === 'true' || body.autoCaption === true;
       job.privacy = body.privacy || config.defaultPrivacy;
       job.scheduledAt = (body.scheduledAt || '').trim() || null; // ISO string utk jadwal publish
       job.autoUpload = body.autoUpload === 'true' || body.autoUpload === true;
@@ -188,6 +189,24 @@ async function renderJob(job, body) {
     });
     job.videoPath = clip.path;
     job.percent = 6;
+
+    // Caption otomatis dari subtitle (suara) YouTube, bila diminta.
+    if (job.autoCaption) {
+      job.stage = 'Mengambil caption otomatis (subtitle YouTube)';
+      const subsDir = await fsp.mkdtemp(path.join(config.uploadsDir, 'subs-'));
+      try {
+        const text = await fetchAutoCaptionText({
+          url: job.ytUrl, start: job.ytStart, duration: job.ytDuration,
+          workDir: subsDir, maxDuration: config.maxDurationSec,
+        });
+        if (text) job.captionText = text;            // pakai transkrip sebagai caption
+        else job.captionWarning = 'Subtitle otomatis tidak ditemukan untuk video ini — caption dilewati.';
+      } catch (e) {
+        job.captionWarning = 'Gagal ambil caption otomatis: ' + e.message;
+      } finally {
+        fsp.rm(subsDir, { recursive: true, force: true }).catch(() => {});
+      }
+    }
   }
 
   // Unduh sumber dari Google Drive bila dipilih (otomatis, di latar belakang).
@@ -318,6 +337,7 @@ app.get('/api/job/:id', (req, res) => {
     youtube: job.youtube,
     error: job.error,
     uploadError: job.uploadError,
+    captionWarning: job.captionWarning,
   });
 });
 

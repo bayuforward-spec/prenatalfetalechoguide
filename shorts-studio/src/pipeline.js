@@ -9,7 +9,7 @@ import path from 'node:path';
 import ffmpegPath from 'ffmpeg-static';
 import ffprobeStatic from 'ffprobe-static';
 import { config } from './config.js';
-import { captionTextToAss } from './captions.js';
+import { captionTextToAss, buildAss } from './captions.js';
 
 const ffprobePath = ffprobeStatic.path;
 
@@ -69,25 +69,40 @@ export async function renderShort(job, onProgress = () => {}) {
   onProgress({ percent: 2, stage: 'Menganalisis media' });
 
   const v = await probe(videoPath);
-  const a = await probe(audioPath);
   if (!v.hasVideo) throw new Error('File video tidak mengandung track video yang valid.');
-  if (!a.hasAudio) throw new Error('File audio tidak mengandung track audio yang valid.');
 
-  // Durasi target = mengikuti audio (audio jadi tulang punggung), dibatasi limit Shorts.
-  const target = Math.min(a.duration || config.maxDurationSec, config.maxDurationSec);
+  // Audio terpisah opsional. Bila tidak ada, pakai suara asli video (video jadi tulang punggung).
+  const hasExternalAudio = Boolean(audioPath);
+  let target;
+  if (hasExternalAudio) {
+    const a = await probe(audioPath);
+    if (!a.hasAudio) throw new Error('File audio tidak mengandung track audio yang valid.');
+    target = Math.min(a.duration || config.maxDurationSec, config.maxDurationSec);
+  } else {
+    if (!v.hasAudio) throw new Error('Tidak ada file audio, dan video tidak punya suara. Tambahkan file audio.');
+    target = Math.min(v.duration || config.maxDurationSec, config.maxDurationSec);
+  }
 
   // Buat folder kerja per job agar referensi file .ass sederhana (hindari escaping path).
   const workDir = await fsp.mkdtemp(path.join(config.outputDir, 'job-'));
   const assName = 'captions.ass';
-  const { ass, segments } = captionTextToAss(job.captionText, target, {
-    width: config.width,
-    height: config.height,
-  }, {
+  const assOpts = {
     style: job.captionStyle,
     uppercase: job.uppercase,
     hookText: job.hookText,
     hookSeconds: job.hookSeconds || 3,
-  });
+  };
+  let ass, segments;
+  if (Array.isArray(job.captionSegments) && job.captionSegments.length) {
+    // Caption sudah jadi (mis. dari subtitle otomatis YouTube).
+    ass = buildAss({ width: config.width, height: config.height }, job.captionSegments, assOpts);
+    segments = job.captionSegments;
+  } else {
+    ({ ass, segments } = captionTextToAss(job.captionText, target, {
+      width: config.width,
+      height: config.height,
+    }, assOpts));
+  }
   await fsp.writeFile(path.join(workDir, assName), ass, 'utf8');
 
   onProgress({ percent: 6, stage: 'Menyiapkan render' });
@@ -103,28 +118,30 @@ export async function renderShort(job, onProgress = () => {}) {
     `[bg][fg]overlay=(W-w)/2:(H-h)/2${grade},fps=${config.fps},subtitles=${assName}[v]`,
   ].join(';');
 
-  // Cek musik latar (opsional). Input ke-2 bila ada.
+  // Cek musik latar (opsional).
   let hasMusic = false;
   if (job.musicPath) {
     try { hasMusic = (await probe(job.musicPath)).hasAudio; } catch { hasMusic = false; }
   }
-  const musicIdx = 2; // video=0, audio=1, music=2
 
-  // --- Audio graph: audio utama + (opsional) musik di-duck + (opsional) audio asli video ---
+  // Indeks input: video=0 selalu. audio terpisah (bila ada)=1. musik = setelahnya.
+  const mainRef = hasExternalAudio ? '[1:a]' : '[0:a]'; // sumber suara utama
+  const musicIdx = hasExternalAudio ? 2 : 1;
+
+  // --- Audio graph: suara utama + (opsional) musik di-duck + (opsional) audio asli video ---
   const aParts = [];
   const mixIns = [];
   if (hasMusic) {
     const vol = Number.isFinite(+job.musicVolume) ? +job.musicVolume : 0.18;
-    // Pisah audio utama: satu untuk mix, satu sebagai "key" sidechain (penurun musik).
-    aParts.push('[1:a]asplit=2[amain][akey]');
+    aParts.push(`${mainRef}asplit=2[amain][akey]`);
     aParts.push(`[${musicIdx}:a]volume=${vol}[mraw]`);
-    // Ducking: musik otomatis mengecil saat audio utama berbunyi.
     aParts.push('[mraw][akey]sidechaincompress=threshold=0.03:ratio=8:attack=5:release=300[mduck]');
     mixIns.push('[amain]', '[mduck]');
   } else {
-    mixIns.push('[1:a]');
+    mixIns.push(mainRef);
   }
-  if (job.keepOriginalAudio && v.hasAudio) {
+  // Campur audio asli video pelan — hanya relevan bila ada audio terpisah sbg utama.
+  if (hasExternalAudio && job.keepOriginalAudio && v.hasAudio) {
     aParts.push('[0:a]volume=0.25[orig]');
     mixIns.push('[orig]');
   }
@@ -134,17 +151,17 @@ export async function renderShort(job, onProgress = () => {}) {
     aParts.push(`${mixIns.join('')}amix=inputs=${mixIns.length}:duration=first:dropout_transition=0[aout]`);
     audioMap = '[aout]';
   } else {
-    // Hanya audio utama, tanpa filter audio: petakan langsung sebagai stream specifier
-    // (TANPA kurung siku — '[1:a]' akan dianggap label filtergraph & gagal).
-    audioMap = '1:a';
+    // Petakan langsung sebagai stream specifier (tanpa kurung siku).
+    audioMap = hasExternalAudio ? '1:a' : '0:a';
   }
 
   const filterComplex = [vf, ...aParts].join(';');
 
   const args = [
     '-y',
-    '-stream_loop', '-1', '-i', videoPath, // loop video bila lebih pendek dari audio
-    '-i', audioPath,
+    // Loop video hanya bila durasi mengikuti audio terpisah; bila pakai suara asli, video = tulang punggung.
+    ...(hasExternalAudio ? ['-stream_loop', '-1'] : []), '-i', videoPath,
+    ...(hasExternalAudio ? ['-i', audioPath] : []),
     ...(hasMusic ? ['-stream_loop', '-1', '-i', job.musicPath] : []), // loop musik
     '-t', String(target),
     '-filter_complex', filterComplex,
