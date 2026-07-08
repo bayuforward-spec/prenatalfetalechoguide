@@ -57,30 +57,28 @@ const App = {
     this.qualManual = true;
     this.setQual(open);
   },
-  // true bila ada isian non-default di bagian kualitatif
+  // true bila ada isian (bukan "belum dinilai") di bagian kualitatif
   qualTerisi() {
-    return this.radio('edf') !== 'present' || this.radio('dvwave') === 'reversed' ||
-           this.radio('aorta') === 'reversed' || this.radio('ctg') === 'abnormal' || this.chk('v-decel');
+    return this.radio('edf') !== 'unknown' || this.radio('dvwave') !== 'unknown' ||
+           this.radio('aorta') !== 'unknown' || this.radio('ctg') !== 'unknown' || this.chk('v-decel');
   },
   checkQual() {
     const hint = document.getElementById('qual-hint');
     const edd = this.edd();
-    const tgl = this.val('v-tgl');
-    const ua = this.num('v-ua');
-    let uaAbn = false;
-    if (edd && tgl && ua != null) {
-      const gw = Engine.gaPada(edd, tgl) / 7;
-      const ev = Engine.cekUA(ua, gw);
-      uaAbn = this.chk('v-ovr_ua') || (ev && ev.abnormal);
+    const v = this.kunjunganDariForm();
+    let berisiko = false, lengkap = true;
+    if (edd && v.tanggal) {
+      const r = Engine.nilaiKunjungan(v, { edd, standar: this.standar });
+      if (r.ga != null && r.wellbeing) { berisiko = r.wellbeing.berisiko; lengkap = r.wellbeing.lengkap; }
     }
-    if (uaAbn) {
+    if (berisiko && !lengkap) {
       this.setQual(true);
       const t = document.getElementById('qual-toggle');
-      t.textContent = '⚠ perlu diisi ▴'; t.className = 'tag bad';
-      hint.innerHTML = `<div class="advice warn" style="margin:0 0 6px">⚠️ <b>UA-PI sudah abnormal (&gt; P95).</b> Lengkapi status EDF, duktus venosus & CTG — penentu utama stadium & risiko IUFD.</div>`;
+      t.textContent = '⚠ WAJIB diisi ▴'; t.className = 'tag bad';
+      hint.innerHTML = `<div class="advice bad" style="margin:0 0 6px">⚠️ <b>Ada tanda risiko (FGR / EFW &lt; P10 / Doppler abnormal) tetapi kesejahteraan janin belum dinilai.</b>
+        Wajib nilai <b>EDF, duktus venosus & CTG</b> — penentu utama stadium & risiko IUFD. Tanpa ini, hasil <b>tidak menyingkirkan</b> risiko tinggi.</div>`;
     } else {
       hint.innerHTML = '';
-      // tetap terbuka bila ada isian non-default atau dibuka manual
       if (this.qualTerisi() || this.qualManual) this.setQual(true);
       else this.setQual(false);
     }
@@ -237,8 +235,8 @@ const App = {
     ck('v-ovr_uta', v.ovr_uta === 'on'); ck('v-ovr_dv', v.ovr_dv === 'on');
     ck('v-decel', v.decel === 'on');
     const rad = (n, val) => { const e = document.querySelector(`input[name="${n}"][value="${val}"]`); if (e) e.checked = true; };
-    rad('edf', v.edf || 'present'); rad('dvwave', v.dvWave || 'positive');
-    rad('aorta', v.aorta || 'normal'); rad('ctg', v.ctg || 'normal');
+    rad('edf', v.edf || 'unknown'); rad('dvwave', v.dvWave || 'unknown');
+    rad('aorta', v.aorta || 'unknown'); rad('ctg', v.ctg || 'unknown');
     this.refreshGA();
     this.checkQual();
     this.lastVisit = v;
@@ -305,7 +303,14 @@ const App = {
     if (lahirMin != null && r.gw >= lahirMin && st.stage >= 1)
       lahirNote = `<div class="advice bad">⏰ UK saat ini (${r.gw.toFixed(1)} mg) sudah mencapai/melewati ambang persalinan stadium ini — <b>pertimbangkan terminasi sekarang</b> sesuai kondisi.</div>`;
 
-    box.innerHTML = `
+    const takLengkap = r.wellbeing && r.wellbeing.berisiko && !r.wellbeing.lengkap;
+    const safety = takLengkap ? `<div class="stage-banner crit" style="margin-bottom:12px">
+        <div class="st">⚠️ PENILAIAN BELUM LENGKAP — jangan dijadikan dasar menunda persalinan</div>
+        <div class="stsub">Ada tanda risiko, tetapi <b>EDF / duktus venosus / CTG belum dinilai</b>.
+        Stadium & risiko IUFD sebenarnya bisa <b>lebih tinggi</b> dari yang tampil di bawah.
+        Lengkapi Doppler vena & CTG, atau rujuk.</div></div>` : '';
+
+    box.innerHTML = safety + `
       <span class="pill ${dx.warna}">${dx.dx}</span> <span class="vmeta" style="margin-left:6px">UK ${r.gaText}</span>
       ${dxTags}
       <h4 style="margin-top:14px">Estimasi Berat Janin</h4>${efwHtml}
@@ -428,6 +433,8 @@ const App = {
       t += `  Doppler: UA-PI ${v.uaPi ?? '-'} | MCA-PI ${v.mcaPi ?? '-'} | CPR ${r.cpr ? r.cpr.nilai.toFixed(2) : '-'} | UtA-PI ${v.utaPi ?? '-'} | DV-PI ${v.dvPi ?? '-'}\n`;
       t += `  EDF: ${this.labelEDF(v.edf)} | DV a-wave: ${v.dvWave === 'reversed' ? 'absent/reversed' : 'positif'} | CTG: ${v.ctg}\n`;
       t += `  Dx: ${r.dx.dx}\n`;
+      if (r.wellbeing && r.wellbeing.berisiko && !r.wellbeing.lengkap)
+        t += `  ⚠️ PENILAIAN BELUM LENGKAP: EDF/DV/CTG belum dinilai — stadium & risiko IUFD bisa lebih tinggi.\n`;
       t += `  Staging: ${r.staging.stage ? 'Stadium ' + this.roman(r.staging.stage) : 'tanpa staging'} — ${r.staging.label}\n`;
       t += `  Surveilans: ${r.staging.monitor} | Persalinan: ${r.staging.lahir} (${r.staging.cara})\n`;
       t += `  Risiko IUFD: ${r.iufd.tier} — ${r.iufd.or}\n\n`;

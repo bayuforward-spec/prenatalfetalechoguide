@@ -149,13 +149,16 @@ function efwPersentil(efw, gaWeeks, standar) {
  *    Centile diestimasi untuk MEMBANTU; klasifikasi abnormal dapat
  *    di-override manual oleh klinisi sesuai grafik referensi lokal.
  * ========================================================= */
-// UA-PI 95th centile per GA. 32–40 mg: tervalidasi (Cohen 2019, Rambam, RMMJ.10379).
-// 20–30 mg: nilai pendekatan mengikuti tren penurunan baku (Acharya/Arduini-style) — ESTIMASI.
+// UA-PI 95th centile per GA. Nilai konservatif & monoton menurun (komposit
+// Acharya 2005 / Arduini-Rizzo), sengaja SENSITIF agar tidak melewatkan UA-PI
+// abnormal. Tetap ESTIMASI — bandingkan dengan grafik referensi lokal Anda.
 const UA_PI = [
-  { ga: 20, p50: 1.20, p95: 1.52 }, { ga: 24, p50: 1.10, p95: 1.40 },
-  { ga: 28, p50: 1.04, p95: 1.30 }, { ga: 32, p50: 1.02, p95: 1.22 },
-  { ga: 34, p50: 1.02, p95: 1.33 }, { ga: 36, p50: 0.99, p95: 1.37 },
-  { ga: 38, p50: 0.91, p95: 1.27 }, { ga: 40, p50: 0.77, p95: 1.03 },
+  { ga: 20, p50: 1.22, p95: 1.55 }, { ga: 22, p50: 1.16, p95: 1.48 },
+  { ga: 24, p50: 1.10, p95: 1.40 }, { ga: 26, p50: 1.04, p95: 1.32 },
+  { ga: 28, p50: 0.99, p95: 1.25 }, { ga: 30, p50: 0.94, p95: 1.18 },
+  { ga: 32, p50: 0.90, p95: 1.12 }, { ga: 34, p50: 0.86, p95: 1.05 },
+  { ga: 36, p50: 0.82, p95: 0.99 }, { ga: 38, p50: 0.78, p95: 0.94 },
+  { ga: 40, p50: 0.74, p95: 0.90 },
 ];
 // MCA-PI 5th centile (rendah = abnormal). 32–40: Cohen 2019. <32: ESTIMASI.
 const MCA_PI = [
@@ -306,9 +309,21 @@ function staging(ga, dx, f) {
 /* =========================================================
  * 6. RISIKO IUFD — stratifikasi kualitatif (OR Caradeux 2018)
  * ========================================================= */
-function risikoIUFD(stage, ga, f) {
+function risikoIUFD(stage, ga, f, opts) {
   const gw = ga / 7;
   let tier, warna, or, ket;
+  // FAIL-SAFE: bila ada tanda risiko tetapi kesejahteraan janin belum dinilai,
+  // JANGAN keluarkan tier menenangkan — Stadium II–IV tak dapat disingkirkan.
+  if (opts && opts.berisiko && !opts.lengkap) {
+    return {
+      tier: 'TIDAK DAPAT DINILAI — data kesejahteraan janin belum lengkap',
+      warna: opts.fgr ? 'crit' : 'bad',
+      or: 'Stadium II–IV (AEDF/REDF/DV abnormal) BELUM dapat disingkirkan tanpa penilaian aliran vena & CTG.',
+      ket: 'WAJIB nilai UA end-diastolic flow (EDF), duktus venosus a-wave, dan CTG/STV — atau rujuk. ' +
+           'JANGAN jadikan hasil ini alasan menunda persalinan. Perkiraan berat & UA-PI saja TIDAK cukup untuk menyingkirkan risiko IUFD.',
+      catatanGA: '', takLengkap: true,
+    };
+  }
   if (stage >= 4) {
     tier = 'KRITIS — kematian janin imminent'; warna = 'crit';
     or = 'DV a-wave absent/reversed: OR kematian janin ≈ 11,6 (Caradeux 2018)';
@@ -372,7 +387,8 @@ function nilaiKunjungan(visit, ctx) {
     cprAbn: ovr('cpr', out.cpr ? out.cpr.abnormal : false),
     utaAbn: ovr('uta', out.uta ? out.uta.abnormal : false),
     dvAbn: ovr('dv', out.dv ? out.dv.abnormal : false),
-    edf: visit.edf || 'present',
+    // PENTING: EDF/DV/CTG TIDAK diasumsikan normal bila belum dinilai.
+    edf: (visit.edf && visit.edf !== 'unknown') ? visit.edf : 'unknown',
     dvReversed: visit.dvWave === 'reversed',
     ctgAbn: visit.ctg === 'abnormal',
     decel: visit.decel === 'on',
@@ -385,7 +401,17 @@ function nilaiKunjungan(visit, ctx) {
   out.dx = dx;
   const st = staging(ga, dx, f);
   out.staging = st;
-  out.iufd = risikoIUFD(st.stage, ga, f);
+
+  // Kelengkapan penilaian kesejahteraan janin
+  const edfAssessed = visit.edf && visit.edf !== 'unknown';
+  const dvAssessed = (visit.dvWave && visit.dvWave !== 'unknown') || (visit.dvPi != null && visit.dvPi !== '');
+  const ctgAssessed = visit.ctg && visit.ctg !== 'unknown';
+  const lengkap = edfAssessed && dvAssessed && ctgAssessed;
+  const berisiko = dx.fgr || f.efw10 || f.uaAbn || f.mcaAbn || f.cprAbn || f.utaAbn || f.dvAbn;
+  out.wellbeing = { edfAssessed, dvAssessed, ctgAssessed, lengkap, berisiko };
+  out.staging.takLengkap = berisiko && !lengkap;
+
+  out.iufd = risikoIUFD(st.stage, ga, f, { berisiko, lengkap, fgr: dx.fgr });
   return out;
 }
 
