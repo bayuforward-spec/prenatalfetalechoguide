@@ -174,6 +174,21 @@
         <label class="check" style="font-size:.82rem"><input type="checkbox" id="v-decel"> Deselerasi spontan pada CTG</label>
         </div>
 
+        <h4>Keputusan klinis akhir (dokumentasi)</h4>
+        <label class="f">Rencana</label>
+        <select id="v-keputusan">
+          <option value="">— pilih —</option>
+          <option value="Lanjut pantau (ekspektatif)">Lanjut pantau (ekspektatif)</option>
+          <option value="Perpendek interval kontrol">Perpendek interval kontrol</option>
+          <option value="Steroid pematangan paru">Steroid pematangan paru</option>
+          <option value="Rawat inap / observasi">Rawat inap / observasi</option>
+          <option value="Rencana persalinan">Rencana persalinan</option>
+          <option value="Rujuk pusat tersier / MFM">Rujuk pusat tersier / MFM</option>
+        </select>
+        <label class="f">Catatan klinis</label>
+        <input id="v-catatan" placeholder="mis. konsul SpOG-KFM, jadwal SC, dsb.">
+        <p class="hint">Keputusan akhir tetap di tangan klinisi — kolom ini untuk jejak dokumentasi, bukan saran otomatis.</p>
+
         <button class="btn" onclick="App.nilaiKunjungan()">🧮 Nilai & Simpan Kunjungan</button>
         <button class="btn ghost" onclick="App.formBaru()" style="margin-top:8px">+ Kunjungan baru (kosongkan form)</button>
       </div>
@@ -224,6 +239,21 @@
   FetoGuard · Surveilans pertumbuhan janin terhambat &amp; risiko IUFD · untuk penggunaan profesional<br>
   Berdasar pedoman ISUOG/SMFM, protokol Barcelona, konsensus Delphi.
 </footer>
+
+<div class="gate" id="gate">
+  <div class="box">
+    <h2>⚠️ Baca sebelum menggunakan</h2>
+    <p><b>FetoGuard adalah alat bantu estimasi berbasis literatur — BUKAN pengganti penilaian klinis.</b></p>
+    <ul>
+      <li>Keputusan pada IUGR/FGR (terutama waktu melahirkan) harus berdasar <b>Doppler lengkap (UA end-diastolic flow + duktus venosus), CTG/KTG, profil biofisik</b>, kondisi ibu, dan pertimbangan obstetri senior.</li>
+      <li>Persentil Doppler bersifat <b>estimasi</b> dan dapat berbeda dari grafik alat/populasi Anda — gunakan referensi resmi Anda.</li>
+      <li>Mengisi hanya berat janin & UA-PI <b>tidak cukup</b> untuk menyingkirkan risiko IUFD.</li>
+      <li><b>Jangan</b> menunda persalinan hanya karena hasil aplikasi tampak "aman".</li>
+    </ul>
+    <label class="check" style="margin-top:10px;color:#e8eef4"><input type="checkbox" id="gate-ok"> Saya tenaga medis dan memahami hal di atas.</label>
+    <button class="btn" onclick="App.setujuGate()" style="margin-top:12px">Masuk</button>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 

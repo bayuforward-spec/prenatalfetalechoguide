@@ -17,6 +17,9 @@ const App = {
   },
 
   init() {
+    // Gerbang peringatan (sekali per sesi browser)
+    if (!sessionStorage.getItem('fetoguard.gate')) document.getElementById('gate').classList.add('show');
+
     const today = new Date().toISOString().slice(0, 10);
     const vtgl = document.getElementById('v-tgl');
     vtgl.value = today;
@@ -94,6 +97,12 @@ const App = {
     const t = document.getElementById('toast');
     t.textContent = m; t.classList.add('show');
     clearTimeout(this._tt); this._tt = setTimeout(() => t.classList.remove('show'), 3200);
+  },
+
+  setujuGate() {
+    if (!document.getElementById('gate-ok').checked) return this.toast('Centang pernyataan terlebih dahulu.');
+    sessionStorage.setItem('fetoguard.gate', '1');
+    document.getElementById('gate').classList.remove('show');
   },
 
   toggleMetode() {
@@ -189,6 +198,7 @@ const App = {
       ovr_uta: this.chk('v-ovr_uta') ? 'on' : '', ovr_dv: this.chk('v-ovr_dv') ? 'on' : '',
       edf: this.radio('edf'), dvWave: this.radio('dvwave'), aorta: this.radio('aorta'),
       ctg: this.radio('ctg'), decel: this.chk('v-decel') ? 'on' : '',
+      keputusan: this.val('v-keputusan'), catatan: this.val('v-catatan'),
     };
   },
 
@@ -211,7 +221,7 @@ const App = {
 
   formBaru() {
     this.editId = null;
-    ['v-td', 'v-tfu', 'v-bpd', 'v-hc', 'v-ac', 'v-fl', 'v-afi', 'v-dvp', 'v-ua', 'v-mca', 'v-uta', 'v-dv'].forEach(id => document.getElementById(id).value = '');
+    ['v-td', 'v-tfu', 'v-bpd', 'v-hc', 'v-ac', 'v-fl', 'v-afi', 'v-dvp', 'v-ua', 'v-mca', 'v-uta', 'v-dv', 'v-keputusan', 'v-catatan'].forEach(id => document.getElementById(id).value = '');
     ['v-ac10', 'v-ac3', 'v-crossing', 'v-ovr_ua', 'v-ovr_mca', 'v-ovr_uta', 'v-ovr_dv', 'v-decel'].forEach(id => document.getElementById(id).checked = false);
     ['edf', 'dvwave', 'aorta', 'ctg'].forEach(n => { const e = document.querySelector(`input[name="${n}"]`); if (e) e.checked = true; });
     document.getElementById('v-tgl').value = new Date().toISOString().slice(0, 10);
@@ -228,6 +238,7 @@ const App = {
     set('v-tgl', v.tanggal); set('v-td', v.td); set('v-tfu', v.tfu);
     set('v-bpd', v.bpd); set('v-hc', v.hc); set('v-ac', v.ac); set('v-fl', v.fl);
     set('v-afi', v.afi); set('v-dvp', v.dvp);
+    set('v-keputusan', v.keputusan); set('v-catatan', v.catatan);
     set('v-ua', v.uaPi); set('v-mca', v.mcaPi); set('v-uta', v.utaPi); set('v-dv', v.dvPi);
     const ck = (i, b) => { const e = document.getElementById(i); if (e) e.checked = !!b; };
     ck('v-ac10', v.ac10); ck('v-ac3', v.ac3); ck('v-crossing', v.crossing === 'on');
@@ -437,7 +448,9 @@ const App = {
         t += `  ⚠️ PENILAIAN BELUM LENGKAP: EDF/DV/CTG belum dinilai — stadium & risiko IUFD bisa lebih tinggi.\n`;
       t += `  Staging: ${r.staging.stage ? 'Stadium ' + this.roman(r.staging.stage) : 'tanpa staging'} — ${r.staging.label}\n`;
       t += `  Surveilans: ${r.staging.monitor} | Persalinan: ${r.staging.lahir} (${r.staging.cara})\n`;
-      t += `  Risiko IUFD: ${r.iufd.tier} — ${r.iufd.or}\n\n`;
+      t += `  Risiko IUFD: ${r.iufd.tier} — ${r.iufd.or}\n`;
+      if (v.keputusan || v.catatan) t += `  Keputusan klinis: ${v.keputusan || '-'}${v.catatan ? ' | ' + v.catatan : ''}\n`;
+      t += `\n`;
     });
     t += '-'.repeat(52) + '\nAcuan: Delphi 2016 · Barcelona (Figueras 2014) · ISUOG/SMFM 2020 · Caradeux 2018.\n';
     t += 'Alat bantu keputusan; bukan pengganti penilaian klinis.\n';

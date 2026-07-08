@@ -136,3 +136,13 @@ details.ref li{margin-bottom:4px}
 
 label.check{display:flex;align-items:flex-start;gap:8px;margin:7px 0;color:var(--muted);cursor:pointer;line-height:1.35}
 label.check input{width:auto;margin-top:2px}
+
+/* Gerbang peringatan */
+.gate{position:fixed;inset:0;background:rgba(6,12,18,.92);z-index:100;display:none;
+  align-items:center;justify-content:center;padding:18px}
+.gate.show{display:flex}
+.gate .box{background:var(--panel);border:1px solid var(--crit);border-radius:16px;max-width:520px;padding:22px 22px 20px}
+.gate h2{margin:0 0 4px;font-size:1.15rem;color:#fecaca}
+.gate p{font-size:.86rem;color:#cfdcea;margin:10px 0}
+.gate ul{font-size:.84rem;color:#cfdcea;padding-left:18px;margin:8px 0}
+.gate li{margin-bottom:6px}
